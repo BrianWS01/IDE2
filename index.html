@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MicroPython Block IDE</title>
+    <!-- Modern font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+    <!-- Prism Syntax Highlighting (One Dark / Tomorrow Theme) -->
+    <link id="prism-theme" href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet" />
+
+    <!-- FontAwesome for modern icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- Blockly Core and Python Generator from CDN -->
+    <script src="https://unpkg.com/blockly/blockly.min.js"></script>
+    <!-- Adicionando Idioma Pt-BR nativo do Blockly -->
+    <script src="https://unpkg.com/blockly/msg/pt-br.js"></script>
+    <script src="https://unpkg.com/blockly/python_compressed.js"></script>
+
+    <!-- Prism.js Scripts para Parser Python -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-python.min.js"></script>
+</head>
+
+<body>
+    <header class="navbar">
+        <div class="logo"><i class="fa-solid fa-microchip" style="color: var(--primary);"></i> MCU Blocks IDE</div>
+        <div class="menu">
+            <div class="dropdown">
+                <span id="menu-file"><i class="fa-solid fa-file"></i> File <i class="fa-solid fa-chevron-down fa-xs"></i></span>
+                <div class="dropdown-content">
+                    <a href="#" id="action-save"><i class="fa-solid fa-download"></i> Save Project</a>
+                    <a href="#" id="action-open"><i class="fa-solid fa-folder-open"></i> Open Project</a>
+                </div>
+            </div>
+            <span><i class="fa-solid fa-pen-to-square"></i> Edit</span>
+            <span><i class="fa-solid fa-circuit-board"></i> Board</span>
+            <span><i class="fa-brands fa-usb"></i> Connect USB</span>
+        </div>
+        <div class="controls">
+            <button class="btn btn-icon" id="theme-toggle" title="Alternar Tema">
+                <i class="fa-solid fa-sun"></i>
+            </button>
+            <button class="btn btn-primary btn-upload" id="btn-upload">
+                <i class="fa-solid fa-cloud-arrow-up"></i> Upload to MCU
+            </button>
+        </div>
+    </header>
+
+    <main class="main-layout">
+        <div id="blocklyDiv" class="workspace-area"></div>
+        <div class="splitter" id="resize-divider"></div>
+
+        <div class="code-area">
+            <!-- Python Code Panel -->
+            <div class="code-panel">
+                <div class="code-header">
+                    <div class="window-controls">
+                        <span class="dot close"></span>
+                        <span class="dot minimize"></span>
+                        <span class="dot maximize"></span>
+                    </div>
+                    <h3>MicroPython Code</h3>
+                    <button class="btn btn-secondary btn-copy" id="btn-copy">
+                        <i class="fa-regular fa-copy"></i> Copy Code
+                    </button>
+                </div>
+                <pre><code id="pythonCode" class="language-python"># Arraste os blocos para iniciar...</code></pre>
+            </div>
+
+            <!-- Terminal Output Panel -->
+            <div class="terminal-panel">
+                <div class="terminal-header">
+                    <h3><i class="fa-solid fa-terminal"></i> Serial Output</h3>
+                    <button class="btn-icon" id="btn-clear-term" title="Clear Terminal"><i class="fa-solid fa-eraser"></i></button>
+                </div>
+                <div class="terminal-content" id="terminal-output">
+                    <div class="log system">IDE Iniciada... Aguardando conexão.</div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Toolbox XML (Hidden) -->
+    <xml id="toolbox" style="display: none">
+        <category name="Eventos" colour="#FFD500" css-icon="icon-event">
+            <block type="event_when_started"></block>
+        </category>
+        <category name="Lógica" colour="#5CB1D6" css-icon="icon-logic">
+            <block type="controls_if"></block>
+            <block type="logic_compare"></block>
+            <block type="logic_operation"></block>
+            <block type="logic_boolean"></block>
+        </category>
+        <category name="Controle" colour="#FFAB19" css-icon="icon-loop">
+            <block type="controls_repeat_ext">
+                <value name="TIMES">
+                    <shadow type="math_number">
+                        <field name="NUM">10</field>
+                    </shadow>
+                </value>
+            </block>
+            <block type="controls_whileUntil"></block>
+        </category>
+        <category name="Operadores" colour="#59C059" css-icon="icon-math">
+            <block type="math_number">
+                <field name="NUM">0</field>
+            </block>
+            <block type="math_arithmetic"></block>
+        </category>
+        <category name="Texto" colour="#9966FF" css-icon="icon-text">
+            <block type="text"></block>
+            <block type="text_print"></block>
+        </category>
+
+        <category name="Variáveis" colour="#FF8C1A" custom="VARIABLE" css-icon="icon-motor"></category>
+        <category name="Funções" colour="#FF6680" custom="PROCEDURE" css-icon="icon-proc"></category>
+        <sep></sep>
+
+        <category name="Pinos" colour="#4CBFE6" css-icon="icon-pin">
+            <block type="mcu_pin_setup"></block>
+            <block type="mcu_pin_write"></block>
+            <block type="mcu_pin_read"></block>
+        </category>
+        <category name="PWM" colour="#0FBD8C" css-icon="icon-pwm">
+            <block type="mcu_pwm_setup"></block>
+            <block type="mcu_pwm_duty"></block>
+        </category>
+        <category name="Motores" colour="#FF6680" css-icon="icon-proc">
+            <block type="mcu_servo_setup"></block>
+            <block type="mcu_servo_move"></block>
+        </category>
+        <category name="Tempo" colour="#FFAB19" css-icon="icon-loop">
+            <block type="mcu_sleep"></block>
+        </category>
+    </xml>
+
+    <input type="file" id="file-upload" accept=".xml" style="display: none;">
+
+    <!-- Connection Modal -->
+    <div id="connection-modal" class="modal-overlay hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2><i class="fa-brands fa-usb"></i> Conectar Dispositivo</h2>
+                <button class="btn-icon close-modal" id="btn-close-modal"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <p>Selecione a porta serial para enviar o código para o seu microcontrolador via Web Serial API.</p>
+                <div class="loader-container">
+                    <div class="loader"></div>
+                    <span>Procurando dispositivos compatíveis...</span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary close-modal">Cancelar</button>
+                <button class="btn btn-primary" id="btn-connect-serial"><i class="fa-solid fa-plug"></i> Conectar</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+
+</html>
