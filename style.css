@@ -191,24 +191,69 @@ body {
     background-color: var(--bg-panel) !important;
     border-right: 1px solid var(--border) !important;
     padding-top: 15px !important;
-    width: 70px !important;
-    min-width: 70px !important;
+    width: 85px !important;
+    min-width: 85px !important;
     display: flex;
     flex-direction: column;
     overflow-y: auto; 
     font-family: 'Inter', sans-serif !important;
 }
 
+/* Remove completely Blockly's category wrapper border and force spacing */
+.blocklyToolboxCategory {
+    border: none !important;
+    margin-bottom: 5px !important; /* Spacing between categories! */
+    height: auto !important;
+    min-height: 50px !important;
+    display: block !important;
+    background: transparent !important;
+}
+
 .blocklyTreeRow {
-    display: flex !important;
-    flex-direction: column !important;
+    display: block !important;
+    height: auto !important; 
+    min-height: 50px !important;
+    padding: 4px 0 0 0 !important;
+    margin: 0 !important;
+    cursor: pointer !important;
+    border-radius: 8px !important;
+    border: none !important;
+    background: transparent !important;
+    text-align: center !important;
+    position: relative !important;
+    box-sizing: border-box !important;
+}
+
+/* Hide Blockly's native weird backgrounds and borders that break the layout */
+.blocklyTreeRowBg, 
+.blocklyToolboxCategoryBackground,
+.blocklyTreeIconClosed, 
+.blocklyTreeIconOpen, 
+.blocklyTreeIconNone {
+    display: none !important;
+}
+
+/* Core Icon Reset - Use FontAwesome via CSS Pseudo Elements */
+.blocklyTreeIcon {
+    display: none !important; /* Hide generic blockly icons if any */
+}
+
+/* Style the ACTUAL custom icons we injected via css-icon */
+span[class*="icon-"] {
+    width: 26px !important;
+    height: 26px !important;
+    min-width: 26px !important;
+    min-height: 26px !important;
+    display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
-    height: 65px !important; 
-    padding: 0 !important;
-    margin-bottom: 4px !important;
-    cursor: pointer !important;
-    border-left: 3px solid transparent !important;
+    background-image: none !important;
+    border-radius: 50% !important;
+    margin: 0 auto !important;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.3) !important;
+    overflow: hidden !important; 
+    vertical-align: middle !important;
+    text-align: center !important;
 }
 
 .blocklyTreeRow:hover {
@@ -221,20 +266,19 @@ body {
 
 .blocklyTreeSelected .blocklyTreeRow {
     background-color: var(--tree-selected-bg) !important;
-    border-left: 3px solid var(--primary) !important; 
 }
 
 /* Label Refinement */
 .blocklyTreeLabel {
-    font-size: 10px !important;
+    font-size: 9.5px !important;
     font-weight: 500 !important;
     color: var(--text-muted) !important;
-    margin-top: 6px !important;
     text-align: center !important;
-    white-space: normal !important;
-    line-height: 1.2 !important;
-    margin-left: 0 !important; 
-    padding: 0 4px !important;
+    white-space: nowrap !important;
+    margin: 3px auto 0 auto !important;
+    padding: 0 !important;
+    line-height: 1 !important;
+    display: block !important;
 }
 
 .blocklyTreeSelected .blocklyTreeLabel {
@@ -242,15 +286,16 @@ body {
     font-weight: 600 !important;
 }
 
-/* Core Icon Reset - Use FontAwesome via CSS Pseudo Elements */
-.blocklyTreeIcon {
-    width: 24px !important;
-    height: 24px !important;
+/* Ensure the row content wrapper respects centering */
+.blocklyTreeRowContentContainer {
     display: flex !important;
+    flex-direction: column !important;
     align-items: center !important;
     justify-content: center !important;
-    background-image: none !important;
-    margin-left: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    pointer-events: none !important;
+    text-align: center !important;
 }
 
 .blocklyTreeIconClosed, .blocklyTreeIconOpen {
@@ -263,19 +308,39 @@ body {
 .icon-motor::before, .icon-time::before {
     font-family: "Font Awesome 6 Free";
     font-weight: 900;
-    font-size: 20px;
+    font-size: 12px;
+    color: #ffffff;
 }
 
-.icon-event::before { content: "\f0e7"; color: #FFD500; } /* Bolt */
-.icon-logic::before { content: "\f074"; color: #5CB1D6; } /* Random/Shuffle */
-.icon-loop::before  { content: "\f2f1"; color: #FFAB19; } /* Sync/Loop */
-.icon-math::before  { content: "\f534"; color: #59C059; } /* Calculator */
-.icon-text::before  { content: "\f031"; color: #9966FF; } /* Font */
-.icon-proc::before  { content: "\f013"; color: #FF6680; } /* Cog */
-.icon-pin::before   { content: "\f2db"; color: #4CBFE6; } /* Microchip */
-.icon-pwm::before   { content: "\f83e"; color: #0FBD8C; } /* Wave-square */
-.icon-motor::before { content: "\f085"; color: #FF8C1A; } /* Cogs */
-.icon-time::before  { content: "\f017"; color: #FFAB19; } /* Clock */
+.icon-event { background-color: #FFD500 !important; }
+.icon-event::before { content: "\f0e7"; } 
+
+.icon-logic { background-color: #5CB1D6 !important; }
+.icon-logic::before { content: "\f074"; } 
+
+.icon-loop { background-color: #FFAB19 !important; }
+.icon-loop::before  { content: "\f2f1"; } 
+
+.icon-math { background-color: #59C059 !important; }
+.icon-math::before  { content: "\f534"; } 
+
+.icon-text { background-color: #9966FF !important; }
+.icon-text::before  { content: "\f031"; } 
+
+.icon-proc { background-color: #FF6680 !important; }
+.icon-proc::before  { content: "\f013"; } 
+
+.icon-pin { background-color: #4CBFE6 !important; }
+.icon-pin::before   { content: "\f2db"; } 
+
+.icon-pwm { background-color: #0FBD8C !important; }
+.icon-pwm::before   { content: "\f83e"; } 
+
+.icon-motor { background-color: #FF8C1A !important; }
+.icon-motor::before { content: "\f085"; } 
+
+.icon-time { background-color: #FFAB19 !important; }
+.icon-time::before  { content: "\f017"; }
 
 
 .code-area {
@@ -311,12 +376,43 @@ body {
 .dot.minimize { background-color: #ffbd2e; }
 .dot.maximize { background-color: #27c93f; }
 
-.code-header h3 {
-    font-size: 0.95rem;
-    font-weight: 500;
-    color: var(--text-muted);
-    flex-grow: 1;
-    text-align: center;
+/* Tabs UI for Code Panel */
+.code-tabs {
+    display: flex;
+    gap: 6px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 6px;
+    align-items: center;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+}
+
+.tab-btn {
+    background: transparent;
+    border: none;
+    color: #555555;
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 13px;
+    padding: 6px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.tab-btn:hover {
+    color: #111111;
+    background-color: #f0f0f0;
+}
+
+.tab-btn.active {
+    background-color: #4D80F0;
+    color: #ffffff;
+    box-shadow: 0 2px 4px rgba(77, 128, 240, 0.3);
+}
+
+[data-theme="light"] .tab-btn.active {
+    background-color: #4D80F0;
 }
 
 .code-area pre {

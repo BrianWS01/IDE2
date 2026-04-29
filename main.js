@@ -3,6 +3,14 @@ document.addEventListener("DOMContentLoaded", function () {
     const toolbox = document.getElementById('toolbox');
     const codeOutput = document.getElementById('pythonCode');
 
+    // Customizing the "Create a Function" feature to feel like "My Blocks"
+    if (Blockly.Msg) {
+        Blockly.Msg["PROCEDURES_DEFNORETURN_TITLE"] = "meu bloco";
+        Blockly.Msg["PROCEDURES_DEFRETURN_TITLE"] = "meu bloco com retorno";
+        Blockly.Msg["NEW_PROCEDURE"] = "Criar meu bloco...";
+        Blockly.Msg["PROCEDURES_MUTATORCONTAINER_TITLE"] = "entradas";
+    }
+
     // Defines Custom Blocks using Google Blockly JSON format
     Blockly.defineBlocksWithJsonArray([
         {
@@ -205,6 +213,58 @@ document.addEventListener("DOMContentLoaded", function () {
         return `time.sleep(${seconds})\n`;
     };
 
+    // --- JavaScript Generators for Custom Blocks ---
+    const jsGen = Blockly.JavaScript;
+    
+    jsGen.forBlock['event_when_started'] = function (block, generator) {
+        return "// --- INÍCIO DO SEU PROGRAMA JavaScript ---\n";
+    };
+
+    jsGen.forBlock['mcu_pin_setup'] = function (block, generator) {
+        const pin = block.getFieldValue('PIN');
+        const mode = block.getFieldValue('MODE');
+        return `let pin_${pin} = hardware.Pin(${pin}, '${mode}');\n`;
+    };
+
+    jsGen.forBlock['mcu_pin_write'] = function (block, generator) {
+        const pin = block.getFieldValue('PIN');
+        const val = block.getFieldValue('VAL');
+        return `pin_${pin}.write(${val});\n`;
+    };
+
+    jsGen.forBlock['mcu_pin_read'] = function (block, generator) {
+        const pin = block.getFieldValue('PIN');
+        return [`pin_${pin}.read()`, generator.ORDER_ATOMIC];
+    };
+
+    jsGen.forBlock['mcu_pwm_setup'] = function (block, generator) {
+        const pin = block.getFieldValue('PIN');
+        const freq = block.getFieldValue('FREQ');
+        return `let pwm_${pin} = hardware.PWM(${pin}, ${freq});\n`;
+    };
+
+    jsGen.forBlock['mcu_pwm_duty'] = function (block, generator) {
+        const pin = block.getFieldValue('PIN');
+        const duty = block.getFieldValue('DUTY');
+        return `pwm_${pin}.setDuty(${duty});\n`;
+    };
+
+    jsGen.forBlock['mcu_servo_setup'] = function (block, generator) {
+        const pin = block.getFieldValue('PIN');
+        return `let servo_${pin} = hardware.Servo(${pin});\n`;
+    };
+
+    jsGen.forBlock['mcu_servo_move'] = function (block, generator) {
+        const pin = block.getFieldValue('PIN');
+        const angle = block.getFieldValue('ANGLE');
+        return `servo_${pin}.writeAngle(${angle});\n`;
+    };
+
+    jsGen.forBlock['mcu_sleep'] = function (block, generator) {
+        const seconds = block.getFieldValue('SECONDS');
+        return `await simulator.sleep(${seconds});\n`;
+    };
+
     const themeZelosDark = Blockly.Theme.defineTheme('zelosDark', {
         'base': Blockly.Themes.Zelos,
         'startHats': true,
@@ -260,17 +320,44 @@ document.addEventListener("DOMContentLoaded", function () {
         theme: initialTheme
     });
 
+    let currentCodeLang = 'python';
+
     function updateCode() {
-        let code = pyGen.workspaceToCode(workspace);
-        if (!code.trim()) {
-            code = "# Conecte blocos abaixo do 'Quando Iniciar' para gerar código...\n";
+        let code = '';
+        if (currentCodeLang === 'python') {
+            code = pyGen.workspaceToCode(workspace);
+            if (!code.trim()) {
+                code = "# Conecte blocos abaixo do 'Quando Iniciar' para gerar código...\n";
+            }
+            codeOutput.className = 'language-python';
+        } else if (currentCodeLang === 'javascript') {
+            code = jsGen.workspaceToCode(workspace);
+            if (!code.trim()) {
+                code = "// Conecte blocos abaixo do 'Quando Iniciar' para gerar código...\n";
+            }
+            codeOutput.className = 'language-javascript';
+        } else if (currentCodeLang === 'cpp') {
+            code = "// Geração de código C++ em breve!\n// (Necessário adicionar o gerador customizado de C++)\n";
+            codeOutput.className = 'language-cpp';
         }
+        
         codeOutput.textContent = code;
 
         if (window.Prism) {
             Prism.highlightElement(codeOutput);
         }
     }
+
+    // Lógica das Abas de Código (Tabs)
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            tabBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            currentCodeLang = btn.getAttribute('data-lang');
+            updateCode();
+        });
+    });
 
     workspace.addChangeListener(updateCode);
     updateCode();
@@ -313,7 +400,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
     });
 
-    // -- Save & Load XML Logic --
+    // -- Save & Load Logic --
     document.getElementById('action-save').addEventListener('click', (e) => {
         e.preventDefault();
         const xmlDom = Blockly.Xml.workspaceToDom(workspace);
@@ -323,13 +410,33 @@ document.addEventListener("DOMContentLoaded", function () {
         a.href = URL.createObjectURL(blob);
         a.download = 'projeto_mcu.xml';
         a.click();
+        URL.revokeObjectURL(a.href);
     });
 
-    const fileInput = document.getElementById('file-upload');
+    const fileInput = document.getElementById('file-input');
     document.getElementById('action-open').addEventListener('click', (e) => {
         e.preventDefault();
         fileInput.click();
     });
+
+    // Export Python Logic
+    const btnExportPy = document.getElementById('action-export-py');
+    if (btnExportPy) {
+        btnExportPy.addEventListener('click', (e) => {
+            e.preventDefault();
+            const pythonCode = pyGen.workspaceToCode(workspace);
+            if (!pythonCode.trim()) {
+                alert("O espaço de trabalho está vazio.");
+                return;
+            }
+            const blob = new Blob([pythonCode], { type: 'text/x-python' });
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = 'main.py';
+            a.click();
+            URL.revokeObjectURL(a.href);
+        });
+    }
 
     fileInput.addEventListener('change', (e) => {
         const file = e.target.files[0];
@@ -414,24 +521,129 @@ document.addEventListener("DOMContentLoaded", function () {
         modal.classList.add('hidden');
     }));
 
-    btnConnect.addEventListener('click', () => {
+    // -- Web Serial API Integration --
+    let port;
+    let reader;
+    let writer;
+    let isConnected = false;
+
+    async function connectSerial() {
+        try {
+            port = await navigator.serial.requestPort();
+            await port.open({ baudRate: 115200 }); // Padrão ESP32/MicroPython
+            addLog("> Conectado via Web Serial com sucesso!", "system");
+            isConnected = true;
+            
+            // Oculta modal se estiver aberto
+            modal.classList.add('hidden');
+            
+            // Inicia leitura
+            readLoop();
+        } catch (err) {
+            console.error("Erro na conexão Serial:", err);
+            addLog("> Erro ao conectar: " + err.message, "error");
+        }
+    }
+
+    async function readLoop() {
+        if (!port || !port.readable) return;
+        
+        try {
+            while (port.readable && isConnected) {
+                const textDecoder = new TextDecoderStream();
+                const readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
+                reader = textDecoder.readable.getReader();
+
+                try {
+                    while (true) {
+                        const { value, done } = await reader.read();
+                        if (done) break;
+                        // Exibe no terminal real
+                        if (value) {
+                            addLog(value);
+                        }
+                    }
+                } catch (error) {
+                    console.error("Read error:", error);
+                } finally {
+                    reader.releaseLock();
+                }
+            }
+        } catch (err) {
+            console.error("Serial error:", err);
+        }
+    }
+
+    async function writeSerial(data) {
+        if (!port || !port.writable) {
+            addLog("> Erro: Placa não conectada.", "error");
+            return;
+        }
+        const encoder = new TextEncoder();
+        writer = port.writable.getWriter();
+        await writer.write(encoder.encode(data));
+        writer.releaseLock();
+    }
+
+    // Botão Connect Menu Superior
+    const connectMenuBtn = document.getElementById('action-connect');
+    if (connectMenuBtn) {
+        connectMenuBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            connectSerial();
+        });
+    }
+
+    // Botão Modal Upload e Connect
+    btnUpload.addEventListener('click', async () => {
+        if (!isConnected) {
+            modal.classList.remove('hidden');
+            loader.style.display = 'none';
+            btnConnect.style.display = 'block';
+        } else {
+            await uploadPythonCode();
+        }
+    });
+
+    btnConnect.addEventListener('click', async () => {
         btnConnect.style.display = 'none';
         loader.style.display = 'flex';
-        
-        // Simulação de conexão WebSerial
-        setTimeout(() => {
-            modal.classList.add('hidden');
-            addLog('> Solicitando acesso Web Serial API...', 'system');
-            addLog('> [SIMULAÇÃO] Conectado com sucesso.', 'system');
-            addLog('> Enviando código Python...', 'system');
-            
-            setTimeout(() => {
-                addLog('MicroPython v1.19.1 on 2022-06-18');
-                addLog('Type "help()" for more information.');
-                addLog('>>> Início da execução...');
-            }, 1500);
-        }, 2000);
+        await connectSerial();
     });
+
+    async function uploadPythonCode() {
+        if (currentCodeLang !== 'python') {
+            addLog("> Mude para a aba Python para fazer o upload!", "warning");
+            return;
+        }
+        
+        let code = pyGen.workspaceToCode(workspace);
+        if (!code.trim()) {
+            addLog("> Nenhum bloco para enviar.", "warning");
+            return;
+        }
+
+        addLog("> Enviando código para a placa...", "system");
+        
+        try {
+            // Entrar no modo Raw REPL (Ctrl+A)
+            await writeSerial('\x01');
+            await new Promise(r => setTimeout(r, 200));
+            
+            // Enviar o código
+            await writeSerial(code);
+            
+            // Sair e executar (Ctrl+D)
+            await writeSerial('\x04');
+            
+            // Retornar ao modo normal (Ctrl+B)
+            await writeSerial('\x02');
+            
+            addLog("> Código enviado com sucesso!", "success");
+        } catch (err) {
+            addLog("> Falha no envio: " + err.message, "error");
+        }
+    }
 
     // Theme Toggle Logic
     const themeBtn = document.getElementById('theme-toggle');
