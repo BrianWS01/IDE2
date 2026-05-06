@@ -511,66 +511,147 @@ document.addEventListener("DOMContentLoaded", function () {
         termOutput.innerHTML = '';
     });
 
-    btnUpload.addEventListener('click', () => {
-        modal.classList.remove('hidden');
+    // Helper para resetar o estado visual do modal
+    function resetModalUI() {
         loader.style.display = 'none';
         btnConnect.style.display = 'block';
+    }
+
+    // Único event listener do btn-upload (removido o duplicado)
+    btnUpload.addEventListener('click', async () => {
+        if (!isConnected) {
+            resetModalUI();
+            modal.classList.remove('hidden');
+        } else {
+            await uploadPythonCode();
+        }
     });
 
     closeBtns.forEach(btn => btn.addEventListener('click', () => {
         modal.classList.add('hidden');
+        resetModalUI(); // Garante reset ao fechar
     }));
 
     // -- Web Serial API Integration --
     let port;
     let reader;
-    let writer;
     let isConnected = false;
+    const serialLed = document.getElementById('serial-led');
+
+    // Helper para atualizar o LED de status
+    function updateSerialLed(connected) {
+        if (serialLed) {
+            if (connected) {
+                serialLed.classList.add('connected');
+            } else {
+                serialLed.classList.remove('connected');
+            }
+        }
+    }
+
+    // Verifica suporte do navegador
+    function checkWebSerialSupport() {
+        if (!('serial' in navigator)) {
+            addLog("> ⚠ Web Serial API não suportada neste navegador!", "error");
+            addLog("> Use Google Chrome ou Microsoft Edge.", "error");
+            return false;
+        }
+        return true;
+    }
 
     async function connectSerial() {
+        if (!checkWebSerialSupport()) {
+            resetModalUI();
+            return;
+        }
+
         try {
+            // requestPort() abre o seletor nativo do navegador
             port = await navigator.serial.requestPort();
+            
+            addLog("> Porta selecionada. Abrindo conexão...", "system");
+            
             await port.open({ baudRate: 115200 }); // Padrão ESP32/MicroPython
-            addLog("> Conectado via Web Serial com sucesso!", "system");
+            
             isConnected = true;
+            updateSerialLed(true);
+            addLog("> ✅ Conectado via Web Serial com sucesso!", "system");
             
-            // Oculta modal se estiver aberto
+            // Atualiza o botão de upload para indicar que está conectado
+            btnUpload.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Enviar Código';
+            
+            // Oculta modal
             modal.classList.add('hidden');
+            resetModalUI();
             
-            // Inicia leitura
+            // Inicia leitura da serial
             readLoop();
+
         } catch (err) {
             console.error("Erro na conexão Serial:", err);
-            addLog("> Erro ao conectar: " + err.message, "error");
+            
+            if (err.name === 'NotFoundError') {
+                addLog("> Nenhuma porta foi selecionada.", "warning");
+            } else if (err.name === 'SecurityError') {
+                addLog("> Permissão negada. Tente novamente.", "error");
+            } else if (err.name === 'InvalidStateError') {
+                addLog("> A porta já está aberta em outro processo.", "error");
+            } else {
+                addLog("> Erro ao conectar: " + err.message, "error");
+            }
+            
+            // RESET da UI do modal para permitir retry
+            resetModalUI();
+        }
+    }
+
+    async function disconnectSerial() {
+        isConnected = false;
+        updateSerialLed(false);
+        try {
+            if (reader) {
+                await reader.cancel();
+                reader.releaseLock();
+                reader = null;
+            }
+            if (port) {
+                await port.close();
+                port = null;
+            }
+            addLog("> Desconectado.", "system");
+            btnUpload.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> Upload to MCU';
+        } catch (err) {
+            console.error("Erro ao desconectar:", err);
         }
     }
 
     async function readLoop() {
         if (!port || !port.readable) return;
         
-        try {
-            while (port.readable && isConnected) {
-                const textDecoder = new TextDecoderStream();
-                const readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
-                reader = textDecoder.readable.getReader();
+        // Usar TextDecoderStream UMA ÚNICA VEZ (fix do bug de re-pipe)
+        const textDecoder = new TextDecoderStream();
+        const readableStreamClosed = port.readable.pipeTo(textDecoder.writable);
+        reader = textDecoder.readable.getReader();
 
-                try {
-                    while (true) {
-                        const { value, done } = await reader.read();
-                        if (done) break;
-                        // Exibe no terminal real
-                        if (value) {
-                            addLog(value);
-                        }
-                    }
-                } catch (error) {
-                    console.error("Read error:", error);
-                } finally {
-                    reader.releaseLock();
+        try {
+            while (isConnected) {
+                const { value, done } = await reader.read();
+                if (done) {
+                    addLog("> Stream de leitura encerrado.", "system");
+                    break;
+                }
+                if (value) {
+                    addLog(value);
                 }
             }
-        } catch (err) {
-            console.error("Serial error:", err);
+        } catch (error) {
+            if (error.name !== 'TypeError' && isConnected) {
+                console.error("Read error:", error);
+                addLog("> Erro de leitura: " + error.message, "error");
+            }
+        } finally {
+            try { reader.releaseLock(); } catch (e) {}
+            try { await readableStreamClosed; } catch (e) {}
         }
     }
 
@@ -580,31 +661,28 @@ document.addEventListener("DOMContentLoaded", function () {
             return;
         }
         const encoder = new TextEncoder();
-        writer = port.writable.getWriter();
-        await writer.write(encoder.encode(data));
-        writer.releaseLock();
+        const writer = port.writable.getWriter();
+        try {
+            await writer.write(encoder.encode(data));
+        } finally {
+            writer.releaseLock(); // Sempre libera o lock
+        }
     }
 
-    // Botão Connect Menu Superior
+    // Botão Connect no Menu Superior
     const connectMenuBtn = document.getElementById('action-connect');
     if (connectMenuBtn) {
-        connectMenuBtn.addEventListener('click', (e) => {
+        connectMenuBtn.addEventListener('click', async (e) => {
             e.preventDefault();
-            connectSerial();
+            if (isConnected) {
+                await disconnectSerial();
+            } else {
+                await connectSerial();
+            }
         });
     }
 
-    // Botão Modal Upload e Connect
-    btnUpload.addEventListener('click', async () => {
-        if (!isConnected) {
-            modal.classList.remove('hidden');
-            loader.style.display = 'none';
-            btnConnect.style.display = 'block';
-        } else {
-            await uploadPythonCode();
-        }
-    });
-
+    // Botão "Conectar" dentro do Modal
     btnConnect.addEventListener('click', async () => {
         btnConnect.style.display = 'none';
         loader.style.display = 'flex';
@@ -626,20 +704,32 @@ document.addEventListener("DOMContentLoaded", function () {
         addLog("> Enviando código para a placa...", "system");
         
         try {
+            // Interromper qualquer execução anterior (Ctrl+C)
+            await writeSerial('\x03');
+            await new Promise(r => setTimeout(r, 100));
+            await writeSerial('\x03');
+            await new Promise(r => setTimeout(r, 200));
+
             // Entrar no modo Raw REPL (Ctrl+A)
             await writeSerial('\x01');
-            await new Promise(r => setTimeout(r, 200));
+            await new Promise(r => setTimeout(r, 300));
             
-            // Enviar o código
-            await writeSerial(code);
+            // Enviar o código em chunks para não sobrecarregar o buffer
+            const chunkSize = 256;
+            for (let i = 0; i < code.length; i += chunkSize) {
+                const chunk = code.substring(i, i + chunkSize);
+                await writeSerial(chunk);
+                await new Promise(r => setTimeout(r, 50)); // Delay entre chunks
+            }
             
             // Sair e executar (Ctrl+D)
             await writeSerial('\x04');
+            await new Promise(r => setTimeout(r, 200));
             
             // Retornar ao modo normal (Ctrl+B)
             await writeSerial('\x02');
             
-            addLog("> Código enviado com sucesso!", "success");
+            addLog("> ✅ Código enviado com sucesso!", "success");
         } catch (err) {
             addLog("> Falha no envio: " + err.message, "error");
         }
