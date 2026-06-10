@@ -16,7 +16,7 @@
     <!-- FontAwesome for modern icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="style.css?v=3">
 
     <!-- Blockly Core and Python Generator from CDN -->
     <script src="https://unpkg.com/blockly/blockly.min.js"></script>
@@ -63,7 +63,19 @@
     </header>
 
     <main class="main-layout">
-        <div id="blocklyDiv" class="workspace-area"></div>
+        <div class="workspace-area">
+            <div id="blocklyDiv" style="width: 100%; height: 100%;"></div>
+            <div class="workspace-controls">
+                <button class="control-btn active" id="tool-select" title="Seleção"><i class="fa-solid fa-arrow-pointer"></i></button>
+                <button class="control-btn" id="tool-pan" title="Mover"><i class="fa-solid fa-arrows-up-down-left-right"></i></button>
+                <div class="control-divider"></div>
+                <button class="control-btn" id="zoom-out" title="Diminuir Zoom"><i class="fa-solid fa-minus"></i></button>
+                <button class="control-btn" id="zoom-in" title="Aumentar Zoom"><i class="fa-solid fa-plus"></i></button>
+                <button class="control-btn" id="zoom-reset">100%</button>
+                <div class="control-divider"></div>
+                <button class="control-btn" id="fullscreen-toggle" title="Tela Cheia"><i class="fa-solid fa-expand"></i></button>
+            </div>
+        </div>
         <div class="splitter" id="resize-divider"></div>
 
         <div class="code-area">
@@ -83,7 +95,7 @@
                     </div>
 
                     <button class="btn btn-secondary btn-copy" id="btn-copy">
-                        <i class="fa-regular fa-copy"></i> Copy
+                        <i class="fa-regular fa-copy"></i> Copiar
                     </button>
                     <button class="btn btn-primary btn-sync" id="btn-sync">
                         <i class="fa-solid fa-arrows-rotate"></i> Sincronizar
@@ -153,6 +165,9 @@
         <category name="Motores" colour="#e74c3c" css-icon="icon-motor">
             <block type="mcu_servo_setup"></block>
             <block type="mcu_servo_move"></block>
+            <block type="l298n_setup"></block>
+            <block type="l298n_motor"></block>
+            <block type="l298n_robot"></block>
         </category>
         <category name="Tempo" colour="#e67e22" css-icon="icon-time">
             <block type="mcu_sleep"></block>
@@ -234,7 +249,7 @@
         </div>
     </div>
 
-    <script src="main.js"></script>
+    <script src="main.js?v=3"></script>
 </body>
 
 </html>

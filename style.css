@@ -1,20 +1,32 @@
 :root {
-    --bg-dark: #0f111a;
-    --bg-panel: #1a1d27;
-    --primary: #9d4edd;
-    --primary-hover: #c77dff;
-    --text-main: #f8f9fa;
-    --text-muted: #adb5bd;
-    --border: #2b2f3a;
-    --header-bg: rgba(15, 17, 26, 0.7);
-    --header-border: rgba(255, 255, 255, 0.1);
-    --code-header-bg: #151720;
-    --scroll-thumb: rgba(255, 255, 255, 0.1);
-    --scroll-thumb-hover: rgba(255, 255, 255, 0.2);
-    --btn-copy-bg: rgba(255, 255, 255, 0.05);
-    --btn-copy-hover: rgba(255, 255, 255, 0.1);
-    --tree-row-hover: rgba(255, 255, 255, 0.05);
-    --tree-selected-bg: rgba(157, 78, 221, 0.1);
+    --bg-dark: #0b1020;
+    --bg-panel: #131a2e;
+
+    --primary: #8b5cf6;
+    --primary-hover: #a855f7;
+
+    --secondary: #00bfff;
+    --cyan: #22d3ee;
+    --pink: #ff4fd8;
+
+    --text-main: #f8fafc;
+    --text-muted: #94a3b8;
+
+    --border: rgba(139, 92, 246, .18);
+
+    --header-bg: rgba(11, 16, 32, .75);
+    --header-border: rgba(139, 92, 246, .15);
+
+    --code-header-bg: #0f172a;
+
+    --scroll-thumb: rgba(139, 92, 246, .3);
+    --scroll-thumb-hover: rgba(139, 92, 246, .5);
+
+    --btn-copy-bg: rgba(255, 255, 255, .04);
+    --btn-copy-hover: rgba(255, 255, 255, .08);
+
+    --tree-row-hover: rgba(139, 92, 246, .08);
+    --tree-selected-bg: rgba(139, 92, 246, .14);
 }
 
 [data-theme="light"] {
@@ -136,8 +148,15 @@ body {
 }
 
 @keyframes led-pulse {
-    0%, 100% { box-shadow: 0 0 6px 2px rgba(0, 230, 118, 0.5); }
-    50% { box-shadow: 0 0 12px 5px rgba(0, 230, 118, 0.8); }
+
+    0%,
+    100% {
+        box-shadow: 0 0 6px 2px rgba(0, 230, 118, 0.5);
+    }
+
+    50% {
+        box-shadow: 0 0 12px 5px rgba(0, 230, 118, 0.8);
+    }
 }
 
 /* Buttons */
@@ -180,15 +199,26 @@ body {
 }
 
 .btn-upload {
-    background: linear-gradient(135deg, var(--primary), #5a189a);
-    color: #fff;
-    box-shadow: 0 4px 15px rgba(157, 78, 221, 0.3);
+    background:
+        linear-gradient(135deg,
+            #8b5cf6,
+            #00bfff);
+
+    color: white;
+
+    border: none;
+
+    box-shadow:
+        0 0 20px rgba(139, 92, 246, .4),
+        0 0 40px rgba(0, 191, 255, .15);
 }
 
 .btn-upload:hover {
     transform: translateY(-2px);
-    box-shadow: 0 6px 20px rgba(157, 78, 221, 0.5);
-    background: linear-gradient(135deg, var(--primary-hover), var(--primary));
+
+    box-shadow:
+        0 0 25px rgba(139, 92, 246, .6),
+        0 0 50px rgba(0, 191, 255, .3);
 }
 
 .btn-upload:active {
@@ -241,25 +271,112 @@ body {
     display: flex;
     flex: 1;
     height: calc(100vh - 65px);
+    padding: 16px !important;
+    gap: 16px !important;
+    background: radial-gradient(circle at 20% 30%, #140d2b 0%, #07050e 70%, #030206 100%) !important;
 }
 
 .workspace-area {
-    width: 65%;
+    flex: 1;
     position: relative;
-    background-color: var(--bg-dark); /* Blockly will inherit this */
-}
-
-/* Vertical Scratch-like Toolbox Theming */
-.blocklyToolboxDiv {
-    background-color: var(--bg-panel) !important;
-    border-right: 1px solid var(--border) !important;
-    padding-top: 12px !important;
-    width: 100px !important;
-    min-width: 100px !important;
+    background-color: transparent !important;
+    border-radius: 0 !important;
+    border: none !important;
+    box-shadow: none !important;
+    overflow: visible !important;
     display: flex;
     flex-direction: column;
-    overflow-y: auto; 
-    font-family: 'Inter', sans-serif !important;
+}
+
+/* Vertical Scratch-like Toolbox Theming - Detached Floating Panel */
+.blocklyToolboxDiv {
+    background: 
+        linear-gradient(rgba(10, 11, 18, 0.95), rgba(10, 11, 18, 0.95)) padding-box,
+        linear-gradient(180deg, rgba(157, 78, 221, 0.8) 0%, rgba(0, 191, 255, 0.4) 100%) border-box !important;
+    border: 2px solid transparent !important;
+    border-radius: 16px !important;
+    backdrop-filter: blur(20px) !important;
+    margin: 0 !important;
+    height: 100% !important;
+    box-shadow: 0 0 30px rgba(157, 78, 221, 0.5), inset 0 0 15px rgba(157, 78, 221, 0.2) !important;
+    padding-top: 16px !important;
+    padding-bottom: 70px !important; /* space for brand card */
+    width: 220px !important;
+    min-width: 220px !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: -236px !important; /* Offset left by the width of the grid margin + gap */
+    transition: all 0.3s ease !important;
+    z-index: 10 !important;
+}
+
+/* High-tech radial dot pattern background for the sidebar */
+.blocklyToolboxDiv::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
+    background: radial-gradient(rgba(139, 92, 246, 0.08) 1.2px, transparent 1.2px) !important;
+    background-size: 8px 8px !important;
+    pointer-events: none !important;
+    opacity: 0.8 !important;
+    border-radius: 14px !important;
+    z-index: 1 !important;
+}
+
+/* Detached Workspace Container (Blockly Div) - Detached Floating Panel */
+#blocklyDiv {
+    background: 
+        linear-gradient(#0c0d14, #0c0d14) padding-box,
+        linear-gradient(180deg, rgba(157, 78, 221, 0.8) 0%, rgba(0, 191, 255, 0.4) 100%) border-box !important;
+    border: 2px solid transparent !important;
+    border-radius: 16px !important;
+    box-shadow: 0 0 30px rgba(157, 78, 221, 0.5), inset 0 0 15px rgba(157, 78, 221, 0.1) !important;
+    margin-left: 236px !important; /* 220px toolbox width + 16px gap */
+    width: calc(100% - 236px) !important;
+    height: 100% !important;
+    position: relative !important;
+    overflow: visible !important; /* Allow the offset sidebar to render outside without being clipped */
+}
+
+/* SVG Workspace Canvas - Kept clean inside its rounded container */
+.blocklySvg {
+    background-color: transparent !important;
+    border: none !important;
+    border-radius: 14px !important;
+    box-shadow: none !important;
+}
+
+/* Color-coded borders for category rows to make the sidebar pop when closed */
+.blocklyTreeRow:has(.icon-event) { border-color: rgba(246, 179, 22, 0.25) !important; }
+.blocklyTreeRow:has(.icon-logic) { border-color: rgba(91, 128, 165, 0.25) !important; }
+.blocklyTreeRow:has(.icon-control) { border-color: rgba(91, 165, 91, 0.25) !important; }
+.blocklyTreeRow:has(.icon-math) { border-color: rgba(91, 103, 165, 0.25) !important; }
+.blocklyTreeRow:has(.icon-text) { border-color: rgba(91, 165, 140, 0.25) !important; }
+.blocklyTreeRow:has(.icon-var) { border-color: rgba(165, 91, 128, 0.25) !important; }
+.blocklyTreeRow:has(.icon-myblocks) { border-color: rgba(153, 91, 165, 0.25) !important; }
+.blocklyTreeRow:has(.icon-pin) { border-color: rgba(142, 68, 173, 0.25) !important; }
+.blocklyTreeRow:has(.icon-pwm) { border-color: rgba(52, 152, 219, 0.25) !important; }
+.blocklyTreeRow:has(.icon-motor) { border-color: rgba(231, 76, 60, 0.25) !important; }
+.blocklyTreeRow:has(.icon-time) { border-color: rgba(230, 126, 34, 0.25) !important; }
+.blocklyTreeRow:has(.icon-pca) { border-color: rgba(233, 30, 99, 0.25) !important; }
+.blocklyTreeRow:has(.icon-arm) { border-color: rgba(103, 58, 183, 0.25) !important; }
+.blocklyTreeRow:has(.icon-dance) { border-color: rgba(255, 87, 34, 0.25) !important; }
+
+.blocklyToolboxDiv::-webkit-scrollbar {
+    width: 4px !important;
+}
+.blocklyToolboxDiv::-webkit-scrollbar-track {
+    background: transparent !important;
+}
+.blocklyToolboxDiv::-webkit-scrollbar-thumb {
+    background: rgba(157, 78, 221, 0.2) !important;
+    border-radius: 10px !important;
+}
+.blocklyToolboxDiv::-webkit-scrollbar-thumb:hover {
+    background: rgba(157, 78, 221, 0.4) !important;
 }
 
 /* Remove completely Blockly's category wrapper border and force spacing */
@@ -267,129 +384,205 @@ body {
     border: none !important;
     margin-bottom: 4px !important;
     height: auto !important;
-    min-height: 50px !important;
+    min-height: 42px !important;
     display: block !important;
     background: transparent !important;
+    position: relative !important;
+    z-index: 2 !important;
 }
 
 .blocklyTreeRow {
-    display: block !important;
-    height: auto !important; 
-    min-height: 50px !important;
-    padding: 4px 0 0 0 !important;
-    margin: 0 !important;
+    display: flex !important;
+    align-items: center !important;
+    height: 42px !important;
+    min-height: 42px !important;
+    padding: 0 12px !important;
+    margin: 10px 12px !important;
     cursor: pointer !important;
-    border-radius: 6px !important;
-    border: none !important;
-    background: transparent !important;
-    text-align: center !important;
+    border-radius: 12px !important;
+    border: 1px solid rgba(255, 255, 255, 0.08) !important;
+    background: rgba(15, 17, 26, 0.6) !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4) !important;
+    text-align: left !important;
     position: relative !important;
     box-sizing: border-box !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+.blocklyTreeRow:focus {
+    outline: none !important;
 }
 
 /* Hide Blockly's native weird backgrounds and borders that break the layout */
-.blocklyTreeRowBg, 
+.blocklyTreeRowBg,
 .blocklyToolboxCategoryBackground,
-.blocklyTreeIconClosed, 
-.blocklyTreeIconOpen, 
+.blocklyTreeIconClosed,
+.blocklyTreeIconOpen,
 .blocklyTreeIconNone {
     display: none !important;
 }
 
 /* Core Icon Reset - Use FontAwesome via CSS Pseudo Elements */
 .blocklyTreeIcon {
-    display: none !important; /* Hide generic blockly icons if any */
+    display: none !important;
+    /* Hide generic blockly icons if any */
 }
 
 /* Style the ACTUAL custom icons we injected via css-icon */
 span[class*="icon-"] {
-    width: 28px !important;
-    height: 28px !important;
-    min-width: 28px !important;
-    min-height: 28px !important;
+    width: 20px !important;
+    height: 20px !important;
+    min-width: 20px !important;
+    min-height: 20px !important;
     display: inline-flex !important;
     align-items: center !important;
     justify-content: center !important;
     background-image: none !important;
     border-radius: 50% !important;
-    margin: 0 auto !important;
-    box-shadow: 0 3px 6px rgba(0,0,0,0.3) !important;
-    overflow: hidden !important; 
+    margin: 0 !important;
+    border: 1.2px solid rgba(255, 255, 255, 0.15) !important;
     vertical-align: middle !important;
     text-align: center !important;
-    transition: box-shadow 0.3s ease, transform 0.2s ease !important;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Base Icon Colors and Subtle Futuristic Glows */
+.icon-event    { background-color: rgba(246, 179, 22, 0.9) !important; box-shadow: 0 0 8px rgba(246, 179, 22, 0.15) !important; border-color: rgba(246, 179, 22, 0.3) !important; }
+.icon-logic    { background-color: rgba(91, 128, 165, 0.9) !important; box-shadow: 0 0 8px rgba(91, 128, 165, 0.15) !important; border-color: rgba(91, 128, 165, 0.3) !important; }
+.icon-control  { background-color: rgba(91, 165, 91, 0.9) !important; box-shadow: 0 0 8px rgba(91, 165, 91, 0.15) !important; border-color: rgba(91, 165, 91, 0.3) !important; }
+.icon-math     { background-color: rgba(91, 103, 165, 0.9) !important; box-shadow: 0 0 8px rgba(91, 103, 165, 0.15) !important; border-color: rgba(91, 103, 165, 0.3) !important; }
+.icon-text     { background-color: rgba(91, 165, 140, 0.9) !important; box-shadow: 0 0 8px rgba(91, 165, 140, 0.15) !important; border-color: rgba(91, 165, 140, 0.3) !important; }
+.icon-var      { background-color: rgba(165, 91, 128, 0.9) !important; box-shadow: 0 0 8px rgba(165, 91, 128, 0.15) !important; border-color: rgba(165, 91, 128, 0.3) !important; }
+.icon-myblocks { background-color: rgba(153, 91, 165, 0.9) !important; box-shadow: 0 0 8px rgba(153, 91, 165, 0.15) !important; border-color: rgba(153, 91, 165, 0.3) !important; }
+.icon-pin      { background-color: rgba(142, 68, 173, 0.9) !important; box-shadow: 0 0 8px rgba(142, 68, 173, 0.15) !important; border-color: rgba(142, 68, 173, 0.3) !important; }
+.icon-pwm      { background-color: rgba(52, 152, 219, 0.9) !important; box-shadow: 0 0 8px rgba(52, 152, 219, 0.15) !important; border-color: rgba(52, 152, 219, 0.3) !important; }
+.icon-motor    { background-color: rgba(231, 76, 60, 0.9) !important; box-shadow: 0 0 8px rgba(231, 76, 60, 0.15) !important; border-color: rgba(231, 76, 60, 0.3) !important; }
+.icon-time     { background-color: rgba(230, 126, 34, 0.9) !important; box-shadow: 0 0 8px rgba(230, 126, 34, 0.15) !important; border-color: rgba(230, 126, 34, 0.3) !important; }
+.icon-pca      { background-color: rgba(233, 30, 99, 0.9) !important; box-shadow: 0 0 8px rgba(233, 30, 99, 0.15) !important; border-color: rgba(233, 30, 99, 0.3) !important; }
+.icon-arm      { background-color: rgba(103, 58, 183, 0.9) !important; box-shadow: 0 0 8px rgba(103, 58, 183, 0.15) !important; border-color: rgba(103, 58, 183, 0.3) !important; }
+.icon-dance    { background-color: rgba(255, 87, 34, 0.9) !important; box-shadow: 0 0 8px rgba(255, 87, 34, 0.15) !important; border-color: rgba(255, 87, 34, 0.3) !important; }
+
+/* Interactive Hover/Active Animations & Neon Glow Effects */
+.blocklyTreeRow:hover {
+    background-color: rgba(157, 78, 221, 0.15) !important;
+    border-color: rgba(157, 78, 221, 0.5) !important;
+    box-shadow: 0 0 20px rgba(157, 78, 221, 0.4), inset 0 0 10px rgba(157, 78, 221, 0.2) !important;
+    transform: translateY(-2px) !important;
 }
 
 .blocklyTreeRow:hover span[class*="icon-"] {
-    transform: scale(1.1) !important;
+    transform: scale(1.2) !important;
+    border-color: #fff !important;
+    box-shadow: 0 0 15px rgba(255, 255, 255, 0.6) !important;
 }
 
-.blocklyTreeRow:hover .icon-event   { box-shadow: 0 0 12px 4px rgba(246, 179, 22, 0.5) !important; }
-.blocklyTreeRow:hover .icon-logic   { box-shadow: 0 0 12px 4px rgba(91, 128, 165, 0.5) !important; }
-.blocklyTreeRow:hover .icon-control { box-shadow: 0 0 12px 4px rgba(91, 165, 91, 0.5) !important; }
-.blocklyTreeRow:hover .icon-math    { box-shadow: 0 0 12px 4px rgba(91, 103, 165, 0.5) !important; }
-.blocklyTreeRow:hover .icon-text    { box-shadow: 0 0 12px 4px rgba(91, 165, 140, 0.5) !important; }
-.blocklyTreeRow:hover .icon-var     { box-shadow: 0 0 12px 4px rgba(165, 91, 128, 0.5) !important; }
-.blocklyTreeRow:hover .icon-myblocks{ box-shadow: 0 0 12px 4px rgba(153, 91, 165, 0.5) !important; }
-.blocklyTreeRow:hover .icon-pin     { box-shadow: 0 0 12px 4px rgba(142, 68, 173, 0.5) !important; }
-.blocklyTreeRow:hover .icon-pwm     { box-shadow: 0 0 12px 4px rgba(52, 152, 219, 0.5) !important; }
-.blocklyTreeRow:hover .icon-motor   { box-shadow: 0 0 12px 4px rgba(231, 76, 60, 0.5) !important; }
-.blocklyTreeRow:hover .icon-time    { box-shadow: 0 0 12px 4px rgba(230, 126, 34, 0.5) !important; }
-.blocklyTreeRow:hover .icon-pca     { box-shadow: 0 0 12px 4px rgba(233, 30, 99, 0.5) !important; }
-.blocklyTreeRow:hover .icon-arm     { box-shadow: 0 0 12px 4px rgba(103, 58, 183, 0.5) !important; }
-.blocklyTreeRow:hover .icon-dance   { box-shadow: 0 0 12px 4px rgba(255, 87, 34, 0.5) !important; }
-
-.blocklyTreeRow:hover {
-    background-color: var(--tree-row-hover) !important;
-}
+.blocklyTreeRow:hover .icon-event   { box-shadow: 0 0 12px 3px rgba(246, 179, 22, 0.45) !important; }
+.blocklyTreeRow:hover .icon-logic   { box-shadow: 0 0 12px 3px rgba(91, 128, 165, 0.45) !important; }
+.blocklyTreeRow:hover .icon-control { box-shadow: 0 0 12px 3px rgba(91, 165, 91, 0.45) !important; }
+.blocklyTreeRow:hover .icon-math    { box-shadow: 0 0 12px 3px rgba(91, 103, 165, 0.45) !important; }
+.blocklyTreeRow:hover .icon-text    { box-shadow: 0 0 12px 3px rgba(91, 165, 140, 0.45) !important; }
+.blocklyTreeRow:hover .icon-var     { box-shadow: 0 0 12px 3px rgba(165, 91, 128, 0.45) !important; }
+.blocklyTreeRow:hover .icon-myblocks{ box-shadow: 0 0 12px 3px rgba(153, 91, 165, 0.45) !important; }
+.blocklyTreeRow:hover .icon-pin     { box-shadow: 0 0 12px 3px rgba(142, 68, 173, 0.45) !important; }
+.blocklyTreeRow:hover .icon-pwm     { box-shadow: 0 0 12px 3px rgba(52, 152, 219, 0.45) !important; }
+.blocklyTreeRow:hover .icon-motor   { box-shadow: 0 0 12px 3px rgba(231, 76, 60, 0.45) !important; }
+.blocklyTreeRow:hover .icon-time    { box-shadow: 0 0 12px 3px rgba(230, 126, 34, 0.45) !important; }
+.blocklyTreeRow:hover .icon-pca     { box-shadow: 0 0 12px 3px rgba(233, 30, 99, 0.45) !important; }
+.blocklyTreeRow:hover .icon-arm     { box-shadow: 0 0 12px 3px rgba(103, 58, 183, 0.45) !important; }
+.blocklyTreeRow:hover .icon-dance   { box-shadow: 0 0 12px 3px rgba(255, 87, 34, 0.45) !important; }
 
 .blocklyTreeSelected {
     background-color: transparent !important;
 }
 
-.blocklyTreeSelected .blocklyTreeRow {
-    background-color: var(--tree-selected-bg) !important;
+/* Color-Specific Active Selections matching the mockup */
+.blocklyTreeSelected:has(.icon-event) .blocklyTreeRow { border-color: rgba(246, 179, 22, 0.6) !important; background: rgba(246, 179, 22, 0.1) !important; box-shadow: 0 0 15px rgba(246, 179, 22, 0.25) !important; }
+.blocklyTreeSelected:has(.icon-logic) .blocklyTreeRow { border-color: rgba(91, 128, 165, 0.6) !important; background: rgba(91, 128, 165, 0.1) !important; box-shadow: 0 0 15px rgba(91, 128, 165, 0.25) !important; }
+.blocklyTreeSelected:has(.icon-control) .blocklyTreeRow { border-color: rgba(91, 165, 91, 0.6) !important; background: rgba(91, 165, 91, 0.1) !important; box-shadow: 0 0 15px rgba(91, 165, 91, 0.25) !important; }
+.blocklyTreeSelected:has(.icon-math) .blocklyTreeRow { border-color: rgba(91, 103, 165, 0.6) !important; background: rgba(91, 103, 165, 0.1) !important; box-shadow: 0 0 15px rgba(91, 103, 165, 0.25) !important; }
+.blocklyTreeSelected:has(.icon-text) .blocklyTreeRow { border-color: rgba(91, 165, 140, 0.6) !important; background: rgba(91, 165, 140, 0.1) !important; box-shadow: 0 0 15px rgba(91, 165, 140, 0.25) !important; }
+.blocklyTreeSelected:has(.icon-var) .blocklyTreeRow { border-color: rgba(165, 91, 128, 0.6) !important; background: rgba(165, 91, 128, 0.1) !important; box-shadow: 0 0 15px rgba(165, 91, 128, 0.25) !important; }
+.blocklyTreeSelected:has(.icon-myblocks) .blocklyTreeRow { border-color: rgba(153, 91, 165, 0.6) !important; background: rgba(153, 91, 165, 0.1) !important; box-shadow: 0 0 15px rgba(153, 91, 165, 0.25) !important; }
+.blocklyTreeSelected:has(.icon-pin) .blocklyTreeRow { border-color: rgba(142, 68, 173, 0.6) !important; background: rgba(142, 68, 173, 0.1) !important; box-shadow: 0 0 15px rgba(142, 68, 173, 0.25) !important; }
+.blocklyTreeSelected:has(.icon-pwm) .blocklyTreeRow { border-color: rgba(52, 152, 219, 0.6) !important; background: rgba(52, 152, 219, 0.1) !important; box-shadow: 0 0 15px rgba(52, 152, 219, 0.25) !important; }
+.blocklyTreeSelected:has(.icon-motor) .blocklyTreeRow { border-color: rgba(231, 76, 60, 0.6) !important; background: rgba(231, 76, 60, 0.1) !important; box-shadow: 0 0 15px rgba(231, 76, 60, 0.25) !important; }
+.blocklyTreeSelected:has(.icon-time) .blocklyTreeRow { border-color: rgba(230, 126, 34, 0.6) !important; background: rgba(230, 126, 34, 0.1) !important; box-shadow: 0 0 15px rgba(230, 126, 34, 0.25) !important; }
+.blocklyTreeSelected:has(.icon-pca) .blocklyTreeRow { border-color: rgba(233, 30, 99, 0.6) !important; background: rgba(233, 30, 99, 0.1) !important; box-shadow: 0 0 15px rgba(233, 30, 99, 0.25) !important; }
+.blocklyTreeSelected:has(.icon-arm) .blocklyTreeRow { border-color: rgba(103, 58, 183, 0.6) !important; background: rgba(103, 58, 183, 0.1) !important; box-shadow: 0 0 15px rgba(103, 58, 183, 0.25) !important; }
+.blocklyTreeSelected:has(.icon-dance) .blocklyTreeRow { border-color: rgba(255, 87, 34, 0.6) !important; background: rgba(255, 87, 34, 0.1) !important; box-shadow: 0 0 15px rgba(255, 87, 34, 0.25) !important; }
+
+.blocklyTreeSelected span[class*="icon-"] {
+    border-color: rgba(255, 255, 255, 0.6) !important;
+    transform: scale(1.05) !important;
 }
 
-/* Label Refinement */
+/* Category Label Styling - Horizontal Text */
 .blocklyTreeLabel {
-    font-size: 10px !important;
+    font-size: 12px !important;
     font-weight: 500 !important;
-    color: var(--text-muted) !important;
-    text-align: center !important;
+    color: #a5a9bf !important;
+    text-align: left !important;
     white-space: nowrap !important;
-    margin: 2px auto 0 auto !important;
+    margin: 0 !important;
     padding: 0 !important;
     line-height: 1 !important;
-    display: block !important;
+    display: inline-block !important;
+    text-transform: none !important; /* normal text casing */
+    letter-spacing: 0.3px !important;
+    font-family: 'Inter', sans-serif !important;
+    transition: color 0.3s ease !important;
+}
+
+.blocklyTreeRow:hover .blocklyTreeLabel {
+    color: #ffffff !important;
 }
 
 .blocklyTreeSelected .blocklyTreeLabel {
-    color: var(--text-main) !important;
-    font-weight: 600 !important;
+    color: #ffffff !important;
+    text-shadow: 0 0 12px #fff, 0 0 20px rgba(157, 78, 221, 0.8) !important;
 }
 
-/* Ensure the row content wrapper respects centering */
+/* Ensure the row content wrapper respects horizontal layouts */
 .blocklyTreeRowContentContainer {
     display: flex !important;
-    flex-direction: column !important;
+    flex-direction: row !important;
     align-items: center !important;
-    justify-content: center !important;
+    justify-content: flex-start !important;
     width: 100% !important;
     height: 100% !important;
+    gap: 10px !important;
     pointer-events: none !important;
-    text-align: center !important;
 }
 
-.blocklyTreeIconClosed, .blocklyTreeIconOpen {
+.blocklyTreeIconClosed,
+.blocklyTreeIconOpen {
     display: none !important;
 }
 
+/* Glowing Neon Separators */
+.blocklyTreeSeparator {
+    border: none !important;
+    height: 1px !important;
+    background: linear-gradient(90deg, transparent, rgba(157, 78, 221, 0.35), transparent) !important;
+    margin: 10px 12px !important;
+    box-shadow: 0 0 8px rgba(157, 78, 221, 0.15) !important;
+}
+
 /* FontAwesome Injection for Toolbox — ALL categories */
-.icon-event::before, .icon-logic::before, .icon-control::before, .icon-math::before, 
-.icon-text::before, .icon-var::before, .icon-myblocks::before, .icon-pin::before, 
-.icon-pwm::before, .icon-motor::before, .icon-time::before, .icon-pca::before,
-.icon-arm::before, .icon-dance::before {
+.icon-event::before,
+.icon-logic::before,
+.icon-control::before,
+.icon-math::before,
+.icon-text::before,
+.icon-var::before,
+.icon-myblocks::before,
+.icon-pin::before,
+.icon-pwm::before,
+.icon-motor::before,
+.icon-time::before,
+.icon-pca::before,
+.icon-arm::before,
+.icon-dance::before {
     font-family: "Font Awesome 6 Free";
     font-weight: 900;
     font-size: 13px;
@@ -397,63 +590,162 @@ span[class*="icon-"] {
 }
 
 /* Icon Colors — matching block colours */
-.icon-event    { background-color: #F6B316 !important; }
-.icon-event::before    { content: "\f0e7"; } /* bolt */
+.icon-event {
+    background-color: #F6B316 !important;
+}
 
-.icon-logic    { background-color: #5b80a5 !important; }
-.icon-logic::before    { content: "\f126"; } /* code-branch */
+.icon-event::before {
+    content: "\f0e7";
+}
 
-.icon-control  { background-color: #5ba55b !important; }
-.icon-control::before  { content: "\f2f1"; } /* arrows-rotate */
+/* bolt */
 
-.icon-math     { background-color: #5b67a5 !important; }
-.icon-math::before     { content: "\f534"; } /* plus-minus */
+.icon-logic {
+    background-color: #5b80a5 !important;
+}
 
-.icon-text     { background-color: #5ba58c !important; }
-.icon-text::before     { content: "\f031"; } /* font */
+.icon-logic::before {
+    content: "\f126";
+}
 
-.icon-var      { background-color: #a55b80 !important; }
-.icon-var::before      { content: "\f1b2"; } /* cube */
+/* code-branch */
 
-.icon-myblocks { background-color: #995ba5 !important; }
-.icon-myblocks::before { content: "\f12e"; } /* puzzle-piece */
+.icon-control {
+    background-color: #5ba55b !important;
+}
 
-.icon-pin      { background-color: #8e44ad !important; }
-.icon-pin::before      { content: "\f2db"; } /* microchip */
+.icon-control::before {
+    content: "\f2f1";
+}
 
-.icon-pwm      { background-color: #3498db !important; }
-.icon-pwm::before      { content: "\f83e"; } /* wave-square */
+/* arrows-rotate */
 
-.icon-motor    { background-color: #e74c3c !important; }
-.icon-motor::before    { content: "\f013"; } /* gear */
+.icon-math {
+    background-color: #5b67a5 !important;
+}
 
-.icon-time     { background-color: #e67e22 !important; }
-.icon-time::before     { content: "\f017"; } /* clock */
+.icon-math::before {
+    content: "\f534";
+}
 
-.icon-pca      { background-color: #E91E63 !important; }
-.icon-pca::before      { content: "\f085"; } /* gears */
+/* plus-minus */
 
-.icon-arm      { background-color: #673AB7 !important; }
-.icon-arm::before      { content: "\f256"; } /* hand */
+.icon-text {
+    background-color: #5ba58c !important;
+}
 
-.icon-dance    { background-color: #FF5722 !important; }
-.icon-dance::before    { content: "\f001"; } /* music */
+.icon-text::before {
+    content: "\f031";
+}
+
+/* font */
+
+.icon-var {
+    background-color: #a55b80 !important;
+}
+
+.icon-var::before {
+    content: "\f1b2";
+}
+
+/* cube */
+
+.icon-myblocks {
+    background-color: #995ba5 !important;
+}
+
+.icon-myblocks::before {
+    content: "\f12e";
+}
+
+/* puzzle-piece */
+
+.icon-pin {
+    background-color: #8e44ad !important;
+}
+
+.icon-pin::before {
+    content: "\f2db";
+}
+
+/* microchip */
+
+.icon-pwm {
+    background-color: #3498db !important;
+}
+
+.icon-pwm::before {
+    content: "\f83e";
+}
+
+/* wave-square */
+
+.icon-motor {
+    background-color: #e74c3c !important;
+}
+
+.icon-motor::before {
+    content: "\f013";
+}
+
+/* gear */
+
+.icon-time {
+    background-color: #e67e22 !important;
+}
+
+.icon-time::before {
+    content: "\f017";
+}
+
+/* clock */
+
+.icon-pca {
+    background-color: #E91E63 !important;
+}
+
+.icon-pca::before {
+    content: "\f085";
+}
+
+/* gears */
+
+.icon-arm {
+    background-color: #673AB7 !important;
+}
+
+.icon-arm::before {
+    content: "\f256";
+}
+
+/* hand */
+
+.icon-dance {
+    background-color: #FF5722 !important;
+}
+
+.icon-dance::before {
+    content: "\f001";
+}
+
+/* music */
 
 
 .code-area {
     width: 35%;
-    background-color: var(--bg-panel);
-    border-left: 1px solid var(--border);
     display: flex;
     flex-direction: column;
+    gap: 16px !important;
+    background: transparent !important;
+    border: none !important;
 }
 
 .code-header {
     display: flex;
     align-items: center;
     padding: 12px 20px;
-    background-color: var(--code-header-bg);
-    border-bottom: 1px solid var(--border);
+    background-color: #0c0d14 !important;
+    border-bottom: 1px solid rgba(157, 78, 221, 0.15) !important;
     gap: 15px;
 }
 
@@ -469,19 +761,27 @@ span[class*="icon-"] {
     border-radius: 50%;
 }
 
-.dot.close { background-color: #ff5f56; }
-.dot.minimize { background-color: #ffbd2e; }
-.dot.maximize { background-color: #27c93f; }
+.dot.close {
+    background-color: #ff5f56;
+}
+
+.dot.minimize {
+    background-color: #ffbd2e;
+}
+
+.dot.maximize {
+    background-color: #27c93f;
+}
 
 /* Tabs UI for Code Panel */
 .code-tabs {
     display: flex;
     gap: 4px;
-    background-color: rgba(255, 255, 255, 0.06);
-    border-radius: 8px;
+    background-color: rgba(10, 11, 18, 0.6);
+    border-radius: 20px !important;
     padding: 4px;
     align-items: center;
-    border: 1px solid var(--border);
+    border: 1px solid rgba(157, 78, 221, 0.2);
 }
 
 [data-theme="light"] .code-tabs {
@@ -491,20 +791,20 @@ span[class*="icon-"] {
 .tab-btn {
     background: transparent;
     border: none;
-    color: var(--text-muted);
+    color: #a5a9bf;
     font-family: 'Inter', sans-serif;
     font-weight: 600;
-    font-size: 12px;
-    padding: 5px 14px;
-    border-radius: 6px;
+    font-size: 11px;
+    padding: 6px 16px;
+    border-radius: 16px !important;
     cursor: pointer;
     transition: all 0.25s ease;
-    letter-spacing: 0.3px;
+    letter-spacing: 0.5px;
 }
 
 .tab-btn:hover {
-    color: var(--text-main);
-    background-color: rgba(255, 255, 255, 0.06);
+    color: #fff;
+    background-color: rgba(255, 255, 255, 0.04);
 }
 
 [data-theme="light"] .tab-btn:hover {
@@ -512,9 +812,9 @@ span[class*="icon-"] {
 }
 
 .tab-btn.active {
-    background: linear-gradient(135deg, var(--primary), #7c3aed);
-    color: #ffffff;
-    box-shadow: 0 2px 8px rgba(157, 78, 221, 0.4);
+    background: linear-gradient(135deg, #8b5cf6, #6d28d9) !important;
+    color: #ffffff !important;
+    box-shadow: 0 0 12px rgba(139, 92, 246, 0.45) !important;
 }
 
 [data-theme="light"] .tab-btn.active {
@@ -585,19 +885,23 @@ span[class*="icon-"] {
     width: 6px;
     height: 6px;
 }
+
 ::-webkit-scrollbar-track {
-    background: transparent; 
+    background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
-    background: transparent; 
+    background: transparent;
     border-radius: 10px;
     transition: background 0.3s;
 }
+
 *:hover::-webkit-scrollbar-thumb {
-    background: var(--scroll-thumb); 
+    background: var(--scroll-thumb);
 }
+
 ::-webkit-scrollbar-thumb:hover {
-    background: var(--scroll-thumb-hover); 
+    background: var(--scroll-thumb-hover);
 }
 
 /* Splitter — Premium */
@@ -624,12 +928,14 @@ span[class*="icon-"] {
     transition: opacity 0.3s;
 }
 
-.splitter:hover, .splitter.dragging {
+.splitter:hover,
+.splitter.dragging {
     background-color: var(--primary);
     box-shadow: 0 0 12px rgba(157, 78, 221, 0.4);
 }
 
-.splitter:hover::before, .splitter.dragging::before {
+.splitter:hover::before,
+.splitter.dragging::before {
     color: #fff;
     opacity: 1;
 }
@@ -645,7 +951,7 @@ span[class*="icon-"] {
     position: absolute;
     background-color: var(--code-header-bg);
     min-width: 160px;
-    box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
     z-index: 20;
     border: 1px solid var(--border);
     border-radius: 8px;
@@ -684,8 +990,15 @@ span[class*="icon-"] {
 }
 
 @keyframes panelFadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to   { opacity: 1; transform: translateY(0); }
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
 }
 
 .terminal-panel {
@@ -700,14 +1013,15 @@ span[class*="icon-"] {
 .terminal-panel::before {
     content: '';
     position: absolute;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0, 255, 0, 0.015) 2px,
-        rgba(0, 255, 0, 0.015) 4px
-    );
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(0deg,
+            transparent,
+            transparent 2px,
+            rgba(0, 255, 0, 0.015) 2px,
+            rgba(0, 255, 0, 0.015) 4px);
     pointer-events: none;
     z-index: 1;
 }
@@ -741,16 +1055,38 @@ span[class*="icon-"] {
     text-shadow: 0 0 4px rgba(0, 255, 65, 0.2);
 }
 
-.terminal-content .log { margin-bottom: 5px; }
-.terminal-content .system { color: #6b7280; font-style: italic; text-shadow: none; }
-.terminal-content .success { color: #34d399; text-shadow: 0 0 6px rgba(52, 211, 153, 0.3); }
-.terminal-content .error { color: #f87171; text-shadow: 0 0 6px rgba(248, 113, 113, 0.3); }
-.terminal-content .warning { color: #fbbf24; text-shadow: 0 0 6px rgba(251, 191, 36, 0.3); }
+.terminal-content .log {
+    margin-bottom: 5px;
+}
+
+.terminal-content .system {
+    color: #6b7280;
+    font-style: italic;
+    text-shadow: none;
+}
+
+.terminal-content .success {
+    color: #34d399;
+    text-shadow: 0 0 6px rgba(52, 211, 153, 0.3);
+}
+
+.terminal-content .error {
+    color: #f87171;
+    text-shadow: 0 0 6px rgba(248, 113, 113, 0.3);
+}
+
+.terminal-content .warning {
+    color: #fbbf24;
+    text-shadow: 0 0 6px rgba(251, 191, 36, 0.3);
+}
 
 /* Modal */
 .modal-overlay {
     position: fixed;
-    top: 0; left: 0; width: 100vw; height: 100vh;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
     background-color: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(5px);
     display: flex;
@@ -772,7 +1108,7 @@ span[class*="icon-"] {
     border-radius: 12px;
     width: 450px;
     max-width: 90%;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
     transform: translateY(0);
     transition: transform 0.3s ease;
 }
@@ -789,7 +1125,9 @@ span[class*="icon-"] {
     border-bottom: 1px solid var(--border);
 }
 
-.modal-header h2 { font-size: 1.1rem; }
+.modal-header h2 {
+    font-size: 1.1rem;
+}
 
 .modal-body {
     padding: 20px;
@@ -823,7 +1161,11 @@ span[class*="icon-"] {
     animation: spin 1s linear infinite;
 }
 
-@keyframes spin { 100% { transform: rotate(360deg); } }
+@keyframes spin {
+    100% {
+        transform: rotate(360deg);
+    }
+}
 
 /* File Manager Styles */
 .file-manager-modal {
@@ -837,7 +1179,7 @@ span[class*="icon-"] {
 }
 
 .file-list-container {
-    background-color: rgba(0,0,0,0.2);
+    background-color: rgba(0, 0, 0, 0.2);
     border-radius: 8px;
     border: 1px solid var(--border);
     max-height: 300px;
@@ -867,7 +1209,7 @@ span[class*="icon-"] {
 }
 
 .file-table tr:hover {
-    background-color: rgba(255,255,255,0.03);
+    background-color: rgba(255, 255, 255, 0.03);
 }
 
 .btn-delete-file {
@@ -885,4 +1227,199 @@ span[class*="icon-"] {
 .btn-delete-file:hover {
     transform: scale(1.2);
     color: #ff0000;
+}
+
+/* Custom Floating controls, logo and block glows */
+.workspace-controls {
+    position: absolute;
+    top: 24px;
+    right: 24px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background-color: rgba(12, 13, 20, 0.85);
+    backdrop-filter: blur(12px);
+    border: 1px solid rgba(157, 78, 221, 0.25);
+    border-radius: 12px;
+    padding: 6px;
+    z-index: 5;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5);
+}
+
+.control-btn {
+    background: transparent;
+    border: none;
+    color: #a5a9bf;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 13px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+}
+
+.control-btn:hover {
+    background: rgba(255, 255, 255, 0.08);
+    color: #fff;
+}
+
+.control-btn.active {
+    background: rgba(157, 78, 221, 0.2);
+    color: #b76eff;
+    border: 1px solid rgba(157, 78, 221, 0.3);
+}
+
+.control-divider {
+    width: 1px;
+    height: 18px;
+    background: rgba(255, 255, 255, 0.15);
+    margin: 0 4px;
+}
+
+#zoom-reset {
+    font-size: 11px;
+    width: auto;
+    padding: 0 8px;
+}
+
+/* Brand footer card inside the sidebar */
+.toolbox-brand-card {
+    position: absolute;
+    bottom: 16px;
+    left: 12px;
+    right: 12px;
+    padding: 10px;
+    background: rgba(157, 78, 221, 0.08);
+    border: 1px solid rgba(157, 78, 221, 0.2);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    pointer-events: none;
+}
+
+.toolbox-brand-logo {
+    width: 24px;
+    height: 24px;
+    object-fit: contain;
+    border-radius: 4px;
+}
+
+.toolbox-brand-info {
+    display: flex;
+    flex-direction: column;
+}
+
+.toolbox-brand-title {
+    font-size: 11px;
+    font-weight: 700;
+    color: #fff;
+    white-space: nowrap;
+}
+
+.toolbox-brand-version {
+    font-size: 9px;
+    color: #8b5cf6;
+    font-weight: 500;
+}
+
+/* Glowing Block Canvas drop shadows matching their category colors */
+path.blocklyPath[fill="#F6B316"], path.blocklyPath[fill="#f39c12"] { filter: drop-shadow(0 0 5px rgba(246, 179, 22, 0.4)) !important; }
+path.blocklyPath[fill="#5b80a5"] { filter: drop-shadow(0 0 5px rgba(91, 128, 165, 0.4)) !important; }
+path.blocklyPath[fill="#5ba55b"] { filter: drop-shadow(0 0 5px rgba(91, 165, 91, 0.4)) !important; }
+path.blocklyPath[fill="#5b67a5"] { filter: drop-shadow(0 0 5px rgba(91, 103, 165, 0.4)) !important; }
+path.blocklyPath[fill="#5ba58c"] { filter: drop-shadow(0 0 5px rgba(91, 165, 140, 0.4)) !important; }
+path.blocklyPath[fill="#8e44ad"] { filter: drop-shadow(0 0 5px rgba(142, 68, 173, 0.4)) !important; }
+path.blocklyPath[fill="#3498db"] { filter: drop-shadow(0 0 5px rgba(52, 152, 219, 0.4)) !important; }
+path.blocklyPath[fill="#e74c3c"] { filter: drop-shadow(0 0 5px rgba(231, 76, 60, 0.4)) !important; }
+path.blocklyPath[fill="#e67e22"] { filter: drop-shadow(0 0 5px rgba(230, 126, 34, 0.4)) !important; }
+path.blocklyPath[fill="#E91E63"] { filter: drop-shadow(0 0 5px rgba(233, 30, 99, 0.4)) !important; }
+path.blocklyPath[fill="#673AB7"] { filter: drop-shadow(0 0 5px rgba(103, 58, 183, 0.4)) !important; }
+path.blocklyPath[fill="#FF5722"] { filter: drop-shadow(0 0 5px rgba(255, 87, 34, 0.4)) !important; }
+
+/* Panel and layout polishes */
+.code-panel {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    height: 60%;
+    background-color: #0c0d14 !important;
+    border-radius: 16px !important;
+    border: 2px solid rgba(157, 78, 221, 0.8) !important;
+    box-shadow: 0 0 30px rgba(157, 78, 221, 0.6), inset 0 0 15px rgba(157, 78, 221, 0.2) !important;
+    overflow: hidden !important;
+}
+
+.terminal-panel {
+    display: flex;
+    flex-direction: column;
+    height: 40%;
+    background-color: #0c0d14 !important;
+    border-radius: 16px !important;
+    border: 2px solid rgba(157, 78, 221, 0.8) !important;
+    box-shadow: 0 0 30px rgba(157, 78, 221, 0.6), inset 0 0 15px rgba(157, 78, 221, 0.2) !important;
+    overflow: hidden !important;
+}
+
+.splitter {
+    width: 8px !important;
+    background: transparent !important;
+    cursor: col-resize;
+    z-index: 10;
+    margin: 0 -4px !important;
+    position: relative;
+    transition: all 0.3s ease;
+}
+.splitter::before {
+    content: '' !important;
+}
+
+/* Premium Neon & Glassmorphism styling for the Blockly Flyout drawer */
+.blocklyFlyoutBackground {
+    fill: rgba(10, 11, 18, 0.93) !important;
+    backdrop-filter: blur(12px) !important;
+    stroke: rgba(157, 78, 221, 0.8) !important;
+    stroke-width: 2px !important;
+    filter: drop-shadow(0 0 20px rgba(157, 78, 221, 0.5)) !important;
+}
+
+/* Add custom neon indicators to the active categories in the sidebar */
+.blocklyTreeSelected .blocklyTreeRow {
+    position: relative !important;
+}
+.blocklyTreeSelected .blocklyTreeRow::before {
+    content: '' !important;
+    position: absolute !important;
+    left: 0 !important;
+    top: 15% !important;
+    height: 70% !important;
+    width: 3px !important;
+    border-radius: 4px !important;
+    transition: all 0.3s ease !important;
+}
+.blocklyTreeSelected:has(.icon-event) .blocklyTreeRow::before { background: #F6B316 !important; box-shadow: 0 0 10px #F6B316 !important; }
+.blocklyTreeSelected:has(.icon-logic) .blocklyTreeRow::before { background: #5b80a5 !important; box-shadow: 0 0 10px #5b80a5 !important; }
+.blocklyTreeSelected:has(.icon-control) .blocklyTreeRow::before { background: #5ba55b !important; box-shadow: 0 0 10px #5ba55b !important; }
+.blocklyTreeSelected:has(.icon-math) .blocklyTreeRow::before { background: #5b67a5 !important; box-shadow: 0 0 10px #5b67a5 !important; }
+.blocklyTreeSelected:has(.icon-text) .blocklyTreeRow::before { background: #5ba58c !important; box-shadow: 0 0 10px #5ba58c !important; }
+.blocklyTreeSelected:has(.icon-var) .blocklyTreeRow::before { background: #a55b80 !important; box-shadow: 0 0 10px #a55b80 !important; }
+.blocklyTreeSelected:has(.icon-myblocks) .blocklyTreeRow::before { background: #995ba5 !important; box-shadow: 0 0 10px #995ba5 !important; }
+.blocklyTreeSelected:has(.icon-pin) .blocklyTreeRow::before { background: #8e44ad !important; box-shadow: 0 0 10px #8e44ad !important; }
+.blocklyTreeSelected:has(.icon-pwm) .blocklyTreeRow::before { background: #3498db !important; box-shadow: 0 0 10px #3498db !important; }
+.blocklyTreeSelected:has(.icon-motor) .blocklyTreeRow::before { background: #e74c3c !important; box-shadow: 0 0 10px #e74c3c !important; }
+.blocklyTreeSelected:has(.icon-time) .blocklyTreeRow::before { background: #e67e22 !important; box-shadow: 0 0 10px #e67e22 !important; }
+.blocklyTreeSelected:has(.icon-pca) .blocklyTreeRow::before { background: #E91E63 !important; box-shadow: 0 0 10px #E91E63 !important; }
+.blocklyTreeSelected:has(.icon-arm) .blocklyTreeRow::before { background: #673AB7 !important; box-shadow: 0 0 10px #673AB7 !important; }
+.blocklyTreeSelected:has(.icon-dance) .blocklyTreeRow::before { background: #FF5722 !important; box-shadow: 0 0 10px #FF5722 !important; }
+
+/* Enhanced neon glow for the active code editor tab button */
+.tab-btn.active {
+    background: linear-gradient(135deg, #8b5cf6, #00bfff) !important;
+    color: #ffffff !important;
+    border: 1px solid rgba(0, 191, 255, 0.4) !important;
+    box-shadow: 0 0 15px rgba(139, 92, 246, 0.5), 0 0 5px rgba(0, 191, 255, 0.3) !important;
 }

@@ -181,6 +181,50 @@ document.addEventListener("DOMContentLoaded", function () {
             "colour": "#FF5722",
             "tooltip": "Executa uma sequência de movimentos pré-programada.",
             "helpUrl": ""
+        },
+        {
+            "type": "l298n_setup",
+            "message0": "Configurar Ponte H L298N: IN1 %1 IN2 %2 IN3 %3 IN4 %4 ENA (Vel. A) %5 ENB (Vel. B) %6",
+            "args0": [
+                { "type": "field_number", "name": "IN1", "value": 12, "min": 0, "max": 40 },
+                { "type": "field_number", "name": "IN2", "value": 13, "min": 0, "max": 40 },
+                { "type": "field_number", "name": "IN3", "value": 14, "min": 0, "max": 40 },
+                { "type": "field_number", "name": "IN4", "value": 27, "min": 0, "max": 40 },
+                { "type": "field_number", "name": "ENA", "value": 25, "min": 0, "max": 40 },
+                { "type": "field_number", "name": "ENB", "value": 26, "min": 0, "max": 40 }
+            ],
+            "previousStatement": null,
+            "nextStatement": null,
+            "colour": "#e74c3c",
+            "tooltip": "Configura os pinos de entrada e controle de velocidade (PWM) para a ponte H L298N.",
+            "helpUrl": ""
+        },
+        {
+            "type": "l298n_motor",
+            "message0": "Ponte H L298N: Motor %1 para %2 Velocidade (0-1023): %3",
+            "args0": [
+                { "type": "field_dropdown", "name": "MOTOR", "options": [["Motor A (IN1/IN2)", "A"], ["Motor B (IN3/IN4)", "B"]] },
+                { "type": "field_dropdown", "name": "DIR", "options": [["Frente", "FORWARD"], ["Trás", "BACKWARD"], ["Parar", "STOP"]] },
+                { "type": "field_number", "name": "SPEED", "value": 512, "min": 0, "max": 1023 }
+            ],
+            "previousStatement": null,
+            "nextStatement": null,
+            "colour": "#e74c3c",
+            "tooltip": "Ajusta a direção de rotação e a velocidade (PWM) de um dos motores.",
+            "helpUrl": ""
+        },
+        {
+            "type": "l298n_robot",
+            "message0": "Ponte H L298N: Mover Robô para %1 Velocidade (0-1023): %2",
+            "args0": [
+                { "type": "field_dropdown", "name": "DIR", "options": [["Frente ⬆️", "FORWARD"], ["Trás ⬇️", "BACKWARD"], ["Esquerda ↩️", "LEFT"], ["Direita ↪️", "RIGHT"], ["Parar 🛑", "STOP"]] },
+                { "type": "field_number", "name": "SPEED", "value": 512, "min": 0, "max": 1023 }
+            ],
+            "previousStatement": null,
+            "nextStatement": null,
+            "colour": "#e74c3c",
+            "tooltip": "Move o robô de duas rodas em uma direção controlando os dois motores simultaneamente.",
+            "helpUrl": ""
         }
     ]);
 
@@ -321,6 +365,72 @@ document.addEventListener("DOMContentLoaded", function () {
         return code;
     };
 
+    pyGen.forBlock['l298n_setup'] = function (block, generator) {
+        generator.machineImports_.add('Pin');
+        generator.machineImports_.add('PWM');
+        const in1 = block.getFieldValue('IN1');
+        const in2 = block.getFieldValue('IN2');
+        const in3 = block.getFieldValue('IN3');
+        const in4 = block.getFieldValue('IN4');
+        const ena = block.getFieldValue('ENA');
+        const enb = block.getFieldValue('ENB');
+        
+        let code = `# Configuração L298N: IN1=${in1}, IN2=${in2}, IN3=${in3}, IN4=${in4}, ENA=${ena}, ENB=${enb}\n`;
+        code += `l298n_in1 = Pin(${in1}, Pin.OUT)\n`;
+        code += `l298n_in2 = Pin(${in2}, Pin.OUT)\n`;
+        code += `l298n_in3 = Pin(${in3}, Pin.OUT)\n`;
+        code += `l298n_in4 = Pin(${in4}, Pin.OUT)\n`;
+        code += `l298n_ena = PWM(Pin(${ena}))\nl298n_ena.freq(1000)\n`;
+        code += `l298n_enb = PWM(Pin(${enb}))\nl298n_enb.freq(1000)\n`;
+        return code;
+    };
+
+    pyGen.forBlock['l298n_motor'] = function (block, generator) {
+        const motor = block.getFieldValue('MOTOR');
+        const dir = block.getFieldValue('DIR');
+        const speed = block.getFieldValue('SPEED');
+        
+        let code = `# Ponte H L298N: Motor ${motor}, ${dir === 'FORWARD' ? 'Frente' : (dir === 'BACKWARD' ? 'Trás' : 'Parar')}, Velocidade ${speed}\n`;
+        if (motor === 'A') {
+            if (dir === 'FORWARD') {
+                code += `l298n_in1.value(1)\nl298n_in2.value(0)\nl298n_ena.duty(${speed})\n`;
+            } else if (dir === 'BACKWARD') {
+                code += `l298n_in1.value(0)\nl298n_in2.value(1)\nl298n_ena.duty(${speed})\n`;
+            } else {
+                code += `l298n_in1.value(0)\nl298n_in2.value(0)\nl298n_ena.duty(0)\n`;
+            }
+        } else {
+            if (dir === 'FORWARD') {
+                code += `l298n_in3.value(1)\nl298n_in4.value(0)\nl298n_enb.duty(${speed})\n`;
+            } else if (dir === 'BACKWARD') {
+                code += `l298n_in3.value(0)\nl298n_in4.value(1)\nl298n_enb.duty(${speed})\n`;
+            } else {
+                code += `l298n_in3.value(0)\nl298n_in4.value(0)\nl298n_enb.duty(0)\n`;
+            }
+        }
+        return code;
+    };
+
+    pyGen.forBlock['l298n_robot'] = function (block, generator) {
+        const dir = block.getFieldValue('DIR');
+        const speed = block.getFieldValue('SPEED');
+        
+        const dirLabel = dir === 'FORWARD' ? 'Frente ⬆️' : (dir === 'BACKWARD' ? 'Trás ⬇️' : (dir === 'LEFT' ? 'Esquerda ↩️' : (dir === 'RIGHT' ? 'Direita ↪️' : 'Parar 🛑')));
+        let code = `# Ponte H L298N: Mover Robô ${dirLabel}, Velocidade ${speed}\n`;
+        if (dir === 'FORWARD') {
+            code += `l298n_in1.value(1)\nl298n_in2.value(0)\nl298n_in3.value(1)\nl298n_in4.value(0)\nl298n_ena.duty(${speed})\nl298n_enb.duty(${speed})\n`;
+        } else if (dir === 'BACKWARD') {
+            code += `l298n_in1.value(0)\nl298n_in2.value(1)\nl298n_in3.value(0)\nl298n_in4.value(1)\nl298n_ena.duty(${speed})\nl298n_enb.duty(${speed})\n`;
+        } else if (dir === 'LEFT') {
+            code += `l298n_in1.value(0)\nl298n_in2.value(1)\nl298n_in3.value(1)\nl298n_in4.value(0)\nl298n_ena.duty(${speed})\nl298n_enb.duty(${speed})\n`;
+        } else if (dir === 'RIGHT') {
+            code += `l298n_in1.value(1)\nl298n_in2.value(0)\nl298n_in3.value(0)\nl298n_in4.value(1)\nl298n_ena.duty(${speed})\nl298n_enb.duty(${speed})\n`;
+        } else {
+            code += `l298n_in1.value(0)\nl298n_in2.value(0)\nl298n_in3.value(0)\nl298n_in4.value(0)\nl298n_ena.duty(0)\nl298n_enb.duty(0)\n`;
+        }
+        return code;
+    };
+
     // --- JavaScript Generators for Custom Blocks ---
     const jsGen = Blockly.JavaScript;
     
@@ -371,6 +481,70 @@ document.addEventListener("DOMContentLoaded", function () {
     jsGen.forBlock['mcu_sleep'] = function (block, generator) {
         const seconds = block.getFieldValue('SECONDS');
         return `await simulator.sleep(${seconds});\n`;
+    };
+
+    jsGen.forBlock['l298n_setup'] = function (block, generator) {
+        const in1 = block.getFieldValue('IN1');
+        const in2 = block.getFieldValue('IN2');
+        const in3 = block.getFieldValue('IN3');
+        const in4 = block.getFieldValue('IN4');
+        const ena = block.getFieldValue('ENA');
+        const enb = block.getFieldValue('ENB');
+        
+        let code = `// Configuração L298N: IN1=${in1}, IN2=${in2}, IN3=${in3}, IN4=${in4}, ENA=${ena}, ENB=${enb}\n`;
+        code += `let l298n_in1 = hardware.Pin(${in1}, 'Pin.OUT');\n`;
+        code += `let l298n_in2 = hardware.Pin(${in2}, 'Pin.OUT');\n`;
+        code += `let l298n_in3 = hardware.Pin(${in3}, 'Pin.OUT');\n`;
+        code += `let l298n_in4 = hardware.Pin(${in4}, 'Pin.OUT');\n`;
+        code += `let l298n_ena = hardware.PWM(${ena}, 1000);\n`;
+        code += `let l298n_enb = hardware.PWM(${enb}, 1000);\n`;
+        return code;
+    };
+
+    jsGen.forBlock['l298n_motor'] = function (block, generator) {
+        const motor = block.getFieldValue('MOTOR');
+        const dir = block.getFieldValue('DIR');
+        const speed = block.getFieldValue('SPEED');
+        
+        let code = `// Ponte H L298N: Motor ${motor}, ${dir === 'FORWARD' ? 'Frente' : (dir === 'BACKWARD' ? 'Trás' : 'Parar')}, Velocidade ${speed}\n`;
+        if (motor === 'A') {
+            if (dir === 'FORWARD') {
+                code += `l298n_in1.write(1);\nl298n_in2.write(0);\nl298n_ena.setDuty(${speed});\n`;
+            } else if (dir === 'BACKWARD') {
+                code += `l298n_in1.write(0);\nl298n_in2.write(1);\nl298n_ena.setDuty(${speed});\n`;
+            } else {
+                code += `l298n_in1.write(0);\nl298n_in2.write(0);\nl298n_ena.setDuty(0);\n`;
+            }
+        } else {
+            if (dir === 'FORWARD') {
+                code += `l298n_in3.write(1);\nl298n_in4.write(0);\nl298n_enb.setDuty(${speed});\n`;
+            } else if (dir === 'BACKWARD') {
+                code += `l298n_in3.write(0);\nl298n_in4.write(1);\nl298n_enb.setDuty(${speed});\n`;
+            } else {
+                code += `l298n_in3.write(0);\nl298n_in4.write(0);\nl298n_enb.setDuty(0);\n`;
+            }
+        }
+        return code;
+    };
+
+    jsGen.forBlock['l298n_robot'] = function (block, generator) {
+        const dir = block.getFieldValue('DIR');
+        const speed = block.getFieldValue('SPEED');
+        
+        const dirLabel = dir === 'FORWARD' ? 'Frente ⬆️' : (dir === 'BACKWARD' ? 'Trás ⬇️' : (dir === 'LEFT' ? 'Esquerda ↩️' : (dir === 'RIGHT' ? 'Direita ↪️' : 'Parar 🛑')));
+        let code = `// Ponte H L298N: Mover Robô ${dirLabel}, Velocidade ${speed}\n`;
+        if (dir === 'FORWARD') {
+            code += `l298n_in1.write(1);\nl298n_in2.write(0);\nl298n_in3.write(1);\nl298n_in4.write(0);\nl298n_ena.setDuty(${speed});\nl298n_enb.setDuty(${speed});\n`;
+        } else if (dir === 'BACKWARD') {
+            code += `l298n_in1.write(0);\nl298n_in2.write(1);\nl298n_in3.write(0);\nl298n_in4.write(1);\nl298n_ena.setDuty(${speed});\nl298n_enb.setDuty(${speed});\n`;
+        } else if (dir === 'LEFT') {
+            code += `l298n_in1.write(0);\nl298n_in2.write(1);\nl298n_in3.write(1);\nl298n_in4.write(0);\nl298n_ena.setDuty(${speed});\nl298n_enb.setDuty(${speed});\n`;
+        } else if (dir === 'RIGHT') {
+            code += `l298n_in1.write(1);\nl298n_in2.write(0);\nl298n_in3.write(0);\nl298n_in4.write(1);\nl298n_ena.setDuty(${speed});\nl298n_enb.setDuty(${speed});\n`;
+        } else {
+            code += `l298n_in1.write(0);\nl298n_in2.write(0);\nl298n_in3.write(0);\nl298n_in4.write(0);\nl298n_ena.setDuty(0);\nl298n_enb.setDuty(0);\n`;
+        }
+        return code;
     };
 
     // --- C++ (Arduino Style) Generator ---
@@ -436,6 +610,116 @@ document.addEventListener("DOMContentLoaded", function () {
         return `pwm.setPWM(${channel}, 0, map(${angle}, 0, 180, 150, 600));\n`;
     };
 
+    cppGen.forBlock['l298n_setup'] = function (block, generator) {
+        const in1 = block.getFieldValue('IN1');
+        const in2 = block.getFieldValue('IN2');
+        const in3 = block.getFieldValue('IN3');
+        const in4 = block.getFieldValue('IN4');
+        const ena = block.getFieldValue('ENA');
+        const enb = block.getFieldValue('ENB');
+        
+        generator.definitions_['l298n_pins_def'] = 
+            `// Configuração L298N: IN1=${in1}, IN2=${in2}, IN3=${in3}, IN4=${in4}, ENA=${ena}, ENB=${enb}\n` +
+            `const int l298n_in1 = ${in1};\n` +
+            `const int l298n_in2 = ${in2};\n` +
+            `const int l298n_in3 = ${in3};\n` +
+            `const int l298n_in4 = ${in4};\n` +
+            `const int l298n_ena = ${ena};\n` +
+            `const int l298n_enb = ${enb};\n`;
+            
+        generator.setups_['l298n_pins_setup'] = 
+            `pinMode(l298n_in1, OUTPUT);\n` +
+            `  pinMode(l298n_in2, OUTPUT);\n` +
+            `  pinMode(l298n_in3, OUTPUT);\n` +
+            `  pinMode(l298n_in4, OUTPUT);\n` +
+            `  pinMode(l298n_ena, OUTPUT);\n` +
+            `  pinMode(l298n_enb, OUTPUT);`;
+        return "";
+    };
+
+    cppGen.forBlock['l298n_motor'] = function (block, generator) {
+        const motor = block.getFieldValue('MOTOR');
+        const dir = block.getFieldValue('DIR');
+        const speed = block.getFieldValue('SPEED');
+        
+        let code = `// Ponte H L298N: Motor ${motor}, ${dir === 'FORWARD' ? 'Frente' : (dir === 'BACKWARD' ? 'Trás' : 'Parar')}, Velocidade ${speed}\n`;
+        if (motor === 'A') {
+            if (dir === 'FORWARD') {
+                code += `digitalWrite(l298n_in1, HIGH);\n` +
+                        `digitalWrite(l298n_in2, LOW);\n` +
+                        `analogWrite(l298n_ena, map(${speed}, 0, 1023, 0, 255));\n`;
+            } else if (dir === 'BACKWARD') {
+                code += `digitalWrite(l298n_in1, LOW);\n` +
+                        `digitalWrite(l298n_in2, HIGH);\n` +
+                        `analogWrite(l298n_ena, map(${speed}, 0, 1023, 0, 255));\n`;
+            } else {
+                code += `digitalWrite(l298n_in1, LOW);\n` +
+                        `digitalWrite(l298n_in2, LOW);\n` +
+                        `analogWrite(l298n_ena, 0);\n`;
+            }
+        } else {
+            if (dir === 'FORWARD') {
+                code += `digitalWrite(l298n_in3, HIGH);\n` +
+                        `digitalWrite(l298n_in4, LOW);\n` +
+                        `analogWrite(l298n_enb, map(${speed}, 0, 1023, 0, 255));\n`;
+            } else if (dir === 'BACKWARD') {
+                code += `digitalWrite(l298n_in3, LOW);\n` +
+                        `digitalWrite(l298n_in4, HIGH);\n` +
+                        `analogWrite(l298n_enb, map(${speed}, 0, 1023, 0, 255));\n`;
+            } else {
+                code += `digitalWrite(l298n_in3, LOW);\n` +
+                        `digitalWrite(l298n_in4, LOW);\n` +
+                        `analogWrite(l298n_enb, 0);\n`;
+            }
+        }
+        return code;
+    };
+
+    cppGen.forBlock['l298n_robot'] = function (block, generator) {
+        const dir = block.getFieldValue('DIR');
+        const speed = block.getFieldValue('SPEED');
+        
+        const dirLabel = dir === 'FORWARD' ? 'Frente ⬆️' : (dir === 'BACKWARD' ? 'Trás ⬇️' : (dir === 'LEFT' ? 'Esquerda ↩️' : (dir === 'RIGHT' ? 'Direita ↪️' : 'Parar 🛑')));
+        let code = `// Ponte H L298N: Mover Robô ${dirLabel}, Velocidade ${speed}\n`;
+        if (dir === 'FORWARD') {
+            code += `digitalWrite(l298n_in1, HIGH);\n` +
+                    `digitalWrite(l298n_in2, LOW);\n` +
+                    `digitalWrite(l298n_in3, HIGH);\n` +
+                    `digitalWrite(l298n_in4, LOW);\n` +
+                    `analogWrite(l298n_ena, map(${speed}, 0, 1023, 0, 255));\n` +
+                    `analogWrite(l298n_enb, map(${speed}, 0, 1023, 0, 255));\n`;
+        } else if (dir === 'BACKWARD') {
+            code += `digitalWrite(l298n_in1, LOW);\n` +
+                    `digitalWrite(l298n_in2, HIGH);\n` +
+                    `digitalWrite(l298n_in3, LOW);\n` +
+                    `digitalWrite(l298n_in4, HIGH);\n` +
+                    `analogWrite(l298n_ena, map(${speed}, 0, 1023, 0, 255));\n` +
+                    `analogWrite(l298n_enb, map(${speed}, 0, 1023, 0, 255));\n`;
+        } else if (dir === 'LEFT') {
+            code += `digitalWrite(l298n_in1, LOW);\n` +
+                    `digitalWrite(l298n_in2, HIGH);\n` +
+                    `digitalWrite(l298n_in3, HIGH);\n` +
+                    `digitalWrite(l298n_in4, LOW);\n` +
+                    `analogWrite(l298n_ena, map(${speed}, 0, 1023, 0, 255));\n` +
+                    `analogWrite(l298n_enb, map(${speed}, 0, 1023, 0, 255));\n`;
+        } else if (dir === 'RIGHT') {
+            code += `digitalWrite(l298n_in1, HIGH);\n` +
+                    `digitalWrite(l298n_in2, LOW);\n` +
+                    `digitalWrite(l298n_in3, LOW);\n` +
+                    `digitalWrite(l298n_in4, HIGH);\n` +
+                    `analogWrite(l298n_ena, map(${speed}, 0, 1023, 0, 255));\n` +
+                    `analogWrite(l298n_enb, map(${speed}, 0, 1023, 0, 255));\n`;
+        } else {
+            code += `digitalWrite(l298n_in1, LOW);\n` +
+                    `digitalWrite(l298n_in2, LOW);\n` +
+                    `digitalWrite(l298n_in3, LOW);\n` +
+                    `digitalWrite(l298n_in4, LOW);\n` +
+                    `analogWrite(l298n_ena, 0);\n` +
+                    `analogWrite(l298n_enb, 0);\n`;
+        }
+        return code;
+    };
+
     const themeZelosDark = Blockly.Theme.defineTheme('zelosDark', {
         'base': Blockly.Themes.Zelos,
         'startHats': true,
@@ -481,8 +765,91 @@ document.addEventListener("DOMContentLoaded", function () {
         scrollbars: true,
         trashcan: true,
         renderer: 'zelos',
-        grid: { spacing: 25, length: 3, colour: '#ccc', snap: true },
+        grid: { spacing: 25, length: 2, colour: 'rgba(157, 78, 221, 0.18)', snap: true },
         theme: initialTheme
+    });
+
+    // Injetar marca d'água de rodapé na sidebar
+    function injectBrandCard() {
+        const toolboxDiv = document.querySelector('.blocklyToolboxDiv');
+        if (!toolboxDiv) {
+            setTimeout(injectBrandCard, 50);
+            return;
+        }
+        if (toolboxDiv.querySelector('.toolbox-brand-card')) return;
+
+        const brandCard = document.createElement('div');
+        brandCard.className = 'toolbox-brand-card';
+        brandCard.innerHTML = `
+            <img class="toolbox-brand-logo" src="https://brianws01.github.io/LP-ROBOTICA/img/logo.png" alt="Mini Makers Logo">
+            <div class="toolbox-brand-info">
+                <div class="toolbox-brand-title">Mini Makers IDE</div>
+                <div class="toolbox-brand-version">Versão 1.0.0</div>
+            </div>
+        `;
+        toolboxDiv.appendChild(brandCard);
+    }
+    injectBrandCard();
+
+    // Lógica dos botões de controle de zoom e fullscreen
+    const zoomInBtn = document.getElementById('zoom-in');
+    const zoomOutBtn = document.getElementById('zoom-out');
+    const zoomResetBtn = document.getElementById('zoom-reset');
+    const fullscreenBtn = document.getElementById('fullscreen-toggle');
+    const toolSelectBtn = document.getElementById('tool-select');
+    const toolPanBtn = document.getElementById('tool-pan');
+    const workspaceContainer = document.querySelector('.workspace-area');
+
+    if (zoomInBtn) {
+        zoomInBtn.addEventListener('click', () => {
+            if (workspace) workspace.zoomCenter(1);
+        });
+    }
+    if (zoomOutBtn) {
+        zoomOutBtn.addEventListener('click', () => {
+            if (workspace) workspace.zoomCenter(-1);
+        });
+    }
+    if (zoomResetBtn) {
+        zoomResetBtn.addEventListener('click', () => {
+            if (workspace) workspace.zoomReset();
+        });
+    }
+    if (fullscreenBtn) {
+        fullscreenBtn.addEventListener('click', () => {
+            if (!document.fullscreenElement) {
+                workspaceContainer.requestFullscreen().then(() => {
+                    fullscreenBtn.innerHTML = '<i class="fa-solid fa-compress"></i>';
+                }).catch(err => {
+                    console.error(`Error enabling full-screen: ${err.message}`);
+                });
+            } else {
+                document.exitFullscreen().then(() => {
+                    fullscreenBtn.innerHTML = '<i class="fa-solid fa-expand"></i>';
+                });
+            }
+        });
+    }
+
+    // Toggle de ferramenta (Seleção vs Mover)
+    if (toolSelectBtn && toolPanBtn) {
+        toolSelectBtn.addEventListener('click', () => {
+            toolSelectBtn.classList.add('active');
+            toolPanBtn.classList.remove('active');
+        });
+        toolPanBtn.addEventListener('click', () => {
+            toolPanBtn.classList.add('active');
+            toolSelectBtn.classList.remove('active');
+        });
+    }
+
+    // Redimensionamento do workspace ao alternar fullscreen
+    document.addEventListener('fullscreenchange', () => {
+        setTimeout(() => {
+            if (workspace) {
+                Blockly.svgResize(workspace);
+            }
+        }, 100);
     });
 
     // --- CodeMirror Initialization ---
@@ -704,6 +1071,27 @@ document.addEventListener("DOMContentLoaded", function () {
     // Helper: parse a single line into a block info object
     function parsePythonLine(line) {
         let m;
+        if ((m = line.match(/^# Configuração L298N: IN1=(\d+), IN2=(\d+), IN3=(\d+), IN4=(\d+), ENA=(\d+), ENB=(\d+)/))) {
+            return { type: 'l298n_setup', fields: { IN1: m[1], IN2: m[2], IN3: m[3], IN4: m[4], ENA: m[5], ENB: m[6] } };
+        }
+        if ((m = line.match(/^# Ponte H L298N: Motor (\w), (Frente|Trás|Parar), Velocidade (\d+)/))) {
+            const motor = m[1];
+            const dir = m[2] === 'Frente' ? 'FORWARD' : (m[2] === 'Trás' ? 'BACKWARD' : 'STOP');
+            const speed = m[3];
+            return { type: 'l298n_motor', fields: { MOTOR: motor, DIR: dir, SPEED: speed } };
+        }
+        if ((m = line.match(/^# Ponte H L298N: Mover Robô (Frente ⬆️|Trás ⬇️|Esquerda ↩️|Direita ↪️|Parar 🛑), Velocidade (\d+)/))) {
+            const dirMap = {
+                'Frente ⬆️': 'FORWARD',
+                'Trás ⬇️': 'BACKWARD',
+                'Esquerda ↩️': 'LEFT',
+                'Direita ↪️': 'RIGHT',
+                'Parar 🛑': 'STOP'
+            };
+            return { type: 'l298n_robot', fields: { DIR: dirMap[m[1]] || 'FORWARD', SPEED: m[2] } };
+        }
+        if (line.match(/^l298n_(in\d+|ena|enb)/)) return null;
+
         if ((m = line.match(/^pin_(\d+)\s*=\s*Pin\((\d+),\s*(Pin\.\w+(?:,\s*Pin\.\w+)?)\)/)))
             return { type: 'mcu_pin_setup', fields: { PIN: m[2], MODE: m[3] } };
         if ((m = line.match(/^pin_(\d+)\.value\((\d)\)/)))
@@ -736,7 +1124,7 @@ document.addEventListener("DOMContentLoaded", function () {
         while (i < lines.length) {
             const raw = lines[i];
             const trimmed = raw.trim();
-            if (!trimmed || trimmed.startsWith('#') || trimmed.startsWith('from ') || trimmed.startsWith('import ')) { i++; continue; }
+            if (!trimmed || (trimmed.startsWith('#') && !trimmed.includes('Configuração L298N') && !trimmed.includes('Ponte H L298N')) || trimmed.startsWith('from ') || trimmed.startsWith('import ')) { i++; continue; }
 
             // Detect while True:
             if (trimmed.match(/^while\s+True\s*:/)) {
@@ -772,6 +1160,28 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function parseJSLine(line) {
         let m;
+        if ((m = line.match(/^\/\/ Configuração L298N: IN1=(\d+), IN2=(\d+), IN3=(\d+), IN4=(\d+), ENA=(\d+), ENB=(\d+)/))) {
+            return { type: 'l298n_setup', fields: { IN1: m[1], IN2: m[2], IN3: m[3], IN4: m[4], ENA: m[5], ENB: m[6] } };
+        }
+        if ((m = line.match(/^\/\/ Ponte H L298N: Motor (\w), (Frente|Trás|Parar), Velocidade (\d+)/))) {
+            const motor = m[1];
+            const dir = m[2] === 'Frente' ? 'FORWARD' : (m[2] === 'Trás' ? 'BACKWARD' : 'STOP');
+            const speed = m[3];
+            return { type: 'l298n_motor', fields: { MOTOR: motor, DIR: dir, SPEED: speed } };
+        }
+        if ((m = line.match(/^\/\/ Ponte H L298N: Mover Robô (Frente ⬆️|Trás ⬇️|Esquerda ↩️|Direita ↪️|Parar 🛑), Velocidade (\d+)/))) {
+            const dirMap = {
+                'Frente ⬆️': 'FORWARD',
+                'Trás ⬇️': 'BACKWARD',
+                'Esquerda ↩️': 'LEFT',
+                'Direita ↪️': 'RIGHT',
+                'Parar 🛑': 'STOP'
+            };
+            return { type: 'l298n_robot', fields: { DIR: dirMap[m[1]] || 'FORWARD', SPEED: m[2] } };
+        }
+        if (line.match(/^l298n_(in\d+|ena|enb)/)) return null;
+        if (line.match(/^let\s+l298n_(in\d+|ena|enb)/)) return null;
+
         if ((m = line.match(/let\s+pin_(\d+)\s*=\s*hardware\.Pin\((\d+),\s*'([^']+)'\)/)))
             return { type: 'mcu_pin_setup', fields: { PIN: m[2], MODE: m[3] } };
         if ((m = line.match(/pin_(\d+)\.write\((\d)\)/)))
@@ -795,7 +1205,7 @@ document.addEventListener("DOMContentLoaded", function () {
         let i = 0;
         while (i < lines.length) {
             const trimmed = lines[i].trim();
-            if (!trimmed || trimmed.startsWith('//') || trimmed === '}') { i++; continue; }
+            if (!trimmed || (trimmed.startsWith('//') && !trimmed.includes('Configuração L298N') && !trimmed.includes('Ponte H L298N')) || trimmed === '}') { i++; continue; }
 
             // Detect while (true) {
             if (trimmed.match(/^while\s*\(\s*true\s*\)\s*\{?/)) {
@@ -828,6 +1238,31 @@ document.addEventListener("DOMContentLoaded", function () {
 
     function parseCppLine(line) {
         let m;
+        if ((m = line.match(/^\/\/ Configuração L298N: IN1=(\d+), IN2=(\d+), IN3=(\d+), IN4=(\d+), ENA=(\d+), ENB=(\d+)/))) {
+            return { type: 'l298n_setup', fields: { IN1: m[1], IN2: m[2], IN3: m[3], IN4: m[4], ENA: m[5], ENB: m[6] } };
+        }
+        if ((m = line.match(/^\/\/ Ponte H L298N: Motor (\w), (Frente|Trás|Parar), Velocidade (\d+)/))) {
+            const motor = m[1];
+            const dir = m[2] === 'Frente' ? 'FORWARD' : (m[2] === 'Trás' ? 'BACKWARD' : 'STOP');
+            const speed = m[3];
+            return { type: 'l298n_motor', fields: { MOTOR: motor, DIR: dir, SPEED: speed } };
+        }
+        if ((m = line.match(/^\/\/ Ponte H L298N: Mover Robô (Frente ⬆️|Trás ⬇️|Esquerda ↩️|Direita ↪️|Parar 🛑), Velocidade (\d+)/))) {
+            const dirMap = {
+                'Frente ⬆️': 'FORWARD',
+                'Trás ⬇️': 'BACKWARD',
+                'Esquerda ↩️': 'LEFT',
+                'Direita ↪️': 'RIGHT',
+                'Parar 🛑': 'STOP'
+            };
+            return { type: 'l298n_robot', fields: { DIR: dirMap[m[1]] || 'FORWARD', SPEED: m[2] } };
+        }
+        if (line.match(/^l298n_(in\d+|ena|enb)/)) return null;
+        if (line.match(/^(const\s+int\s+)?l298n_(in\d+|ena|enb)/)) return null;
+        if (line.match(/^pinMode\(l298n_(in\d+|ena|enb)/)) return null;
+        if (line.match(/^digitalWrite\(l298n_(in\d+|ena|enb)/)) return null;
+        if (line.match(/^analogWrite\(l298n_(in\d+|ena|enb)/)) return null;
+
         if ((m = line.match(/pinMode\((\d+),\s*(OUTPUT|INPUT|INPUT_PULLUP)\)/))) {
             const modeMap = { 'OUTPUT': 'Pin.OUT', 'INPUT': 'Pin.IN', 'INPUT_PULLUP': 'Pin.IN, Pin.PULL_UP' };
             return { type: 'mcu_pin_setup', fields: { PIN: m[1], MODE: modeMap[m[2]] || m[2] } };
@@ -853,7 +1288,7 @@ document.addEventListener("DOMContentLoaded", function () {
 
         while (i < lines.length) {
             const trimmed = lines[i].trim();
-            if (!trimmed || trimmed.startsWith('//') || trimmed.startsWith('#include') || trimmed === '{' || trimmed === '}') {
+            if (!trimmed || (trimmed.startsWith('//') && !trimmed.includes('Configuração L298N') && !trimmed.includes('Ponte H L298N')) || trimmed.startsWith('#include') || trimmed === '{' || trimmed === '}') {
                 if (trimmed === '}' && inLoop) {
                     // End of while block
                     blocks.push({
